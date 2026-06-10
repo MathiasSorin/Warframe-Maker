@@ -725,6 +725,11 @@ body.theme-arcane .download-btn:hover {
     text-decoration: underline;
 }
 
+.htu-tip {
+    color: #c8aa6e;
+    font-style: italic;
+}
+
 /* ── Footer ── */
 footer {
     text-align: center;
