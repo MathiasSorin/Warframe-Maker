@@ -656,6 +656,75 @@ body.theme-arcane .download-btn:hover {
     background: #8f6030;
 }
 
+/* ── How to Use ── */
+.how-to-use {
+    max-width: 1000px;
+    margin: 60px auto 0;
+    padding: 0 16px;
+}
+
+.how-to-use h2 {
+    text-align: center;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #c8aa6e;
+    margin-bottom: 32px;
+}
+
+.htu-columns {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+}
+
+.htu-block {
+    flex: 1;
+    max-width: 420px;
+    background: #13132a;
+    border: 1px solid #2a2a46;
+    border-radius: 4px;
+    padding: 24px 28px;
+}
+
+.htu-block h3 {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #c8aa6e;
+    margin-bottom: 16px;
+}
+
+.htu-block ol {
+    padding-left: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.htu-block li {
+    font-size: 13px;
+    color: #9090b0;
+    line-height: 1.5;
+}
+
+.htu-block strong {
+    color: #e0e0e0;
+}
+
+.htu-link {
+    color: #c8aa6e;
+    text-decoration: none;
+    transition: color 0.15s;
+}
+
+.htu-link:hover {
+    color: #dbbe82;
+    text-decoration: underline;
+}
+
 /* ── Footer ── */
 footer {
     text-align: center;
@@ -668,6 +737,19 @@ footer {
 .ign {
     color: #c8aa6e;
     font-weight: 700;
+}
+
+.footer-link {
+    color: #4a4a6a;
+    font-size: 12px;
+    text-decoration: none;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: color 0.15s;
+}
+
+.footer-link:hover {
+    color: #c8aa6e;
 }
 
 /* ── Mobile ── */
@@ -714,6 +796,16 @@ footer {
 
     .arcane-card {
         width: min(300px, 90vw);
+    }
+
+    .htu-columns {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .htu-block {
+        max-width: 100%;
+        width: 100%;
     }
 }
 
