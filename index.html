@@ -233,6 +233,39 @@
 
         // ── Shared utilities ───────────────────────────────────────────────────
 
+        const ELEMENT_ICONS = {
+            impact:     'ImpactSymbol',
+            puncture:   'PunctureSymbol',
+            slash:      'SlashSymbol',
+            cold:       'ColdSymbol',
+            electric:   'ElectricitySymbol',
+            heat:       'HeatSymbol',
+            toxin:      'ToxinSymbol',
+            blast:      'BlastSymbol',
+            corrosive:  'CorrosiveSymbol',
+            gas:        'GasSymbol',
+            magnetic:   'MagneticSymbol',
+            radiation:  'RadiationSymbol',
+            viral:      'ViralSymbol',
+            void:       'VoidSymbol',
+            tau:        'SentientSymbol',
+        };
+
+        function parseEffectText(raw) {
+            const escaped = raw
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+            return escaped.replace(/&lt;(\w+)&gt;/g, (match, tag) => {
+                const lower = tag.toLowerCase();
+                if (lower === 'bar') return `<span class="effect-bar"></span>`;
+                const file = ELEMENT_ICONS[lower];
+                return file
+                    ? `<img src="images/ElementIcon/${file}.png" class="effect-icon" alt="${tag}">`
+                    : match;
+            });
+        }
+
         const RARITY_TIER = {
             Common:     'Bronze',
             Uncommon:   'Silver',
@@ -368,7 +401,7 @@
         }
 
         function updateModEffect() {
-            modCard.querySelector('.card-effect').textContent = document.getElementById('mod-effect').value;
+            modCard.querySelector('.card-effect').innerHTML = parseEffectText(document.getElementById('mod-effect').value);
             updateIconClip(modCard);
         }
 
@@ -422,7 +455,7 @@
         }
 
         function updateArcaneEffect() {
-            document.getElementById('arcane-effect-text').textContent = document.getElementById('arcane-effect').value;
+            document.getElementById('arcane-effect-text').innerHTML = parseEffectText(document.getElementById('arcane-effect').value);
         }
 
         function updateArcaneArt() {
