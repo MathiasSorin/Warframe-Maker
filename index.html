@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warframe Mod Maker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body>
+
+    <h1 id="page-title">Warframe Custom Mod Maker</h1>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab(event, 'mod')">Mod Card</button>
+        <button class="tab-btn" onclick="switchTab(event, 'arcane')">Arcane</button>
+    </div>
+
+    <!-- ── MOD TAB ── -->
+    <div class="layout" id="tab-mod">
+
+        <div class="form-panel">
+
+            <div class="form-group">
+                <label for="mod-rarity">Rarity</label>
+                <select id="mod-rarity" onchange="updateModBackground()">
+                    <option value="">Select Rarity</option>
+                    <option value="Common">Common</option>
+                    <option value="Uncommon">Uncommon</option>
+                    <option value="Rare" selected>Rare</option>
+                    <option value="Legendary">Legendary</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="mod-drain">Drain</label>
+                <input type="number" id="mod-drain" value="9" min="0" oninput="updateModCost()">
+            </div>
+
+            <div class="form-group">
+                <label>Polarity</label>
+                <div class="polarity-picker" id="polarity-picker" data-value="">
+                    <div class="polarity-picker-trigger" onclick="togglePolarityPicker()">
+                        <img src="" class="pp-trigger-icon" alt="">
+                        <span class="pp-trigger-label">None</span>
+                        <svg class="pp-arrow" width="12" height="8" viewBox="0 0 12 8" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M1 1l5 5 5-5" stroke="#7a7a9a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div class="pp-options" id="polarity-options">
+                        <div class="pp-option" data-value="" onclick="pickPolarity(this)">
+                            <span>None</span>
+                        </div>
+                        <div class="pp-option" data-value="Madurai" onclick="pickPolarity(this)">
+                            <img src="images/Polarity/Madurai.png" alt="Madurai">
+                            <span>Madurai</span>
+                        </div>
+                        <div class="pp-option" data-value="Vazarin" onclick="pickPolarity(this)">
+                            <img src="images/Polarity/Vazarin.png" alt="Vazarin">
+                            <span>Vazarin</span>
+                        </div>
+                        <div class="pp-option" data-value="Naramon" onclick="pickPolarity(this)">
+                            <img src="images/Polarity/Naramon.png" alt="Naramon">
+                            <span>Naramon</span>
+                        </div>
+                        <div class="pp-option" data-value="Zenurik" onclick="pickPolarity(this)">
+                            <img src="images/Polarity/Zenurik.png" alt="Zenurik">
+                            <span>Zenurik</span>
+                        </div>
+                        <div class="pp-option" data-value="Unairu" onclick="pickPolarity(this)">
+                            <img src="images/Polarity/Unairu.png" alt="Unairu">
+                            <span>Unairu</span>
+                        </div>
+                        <div class="pp-option" data-value="Penjaga" onclick="pickPolarity(this)">
+                            <img src="images/Polarity/Penjaga.png" alt="Penjaga">
+                            <span>Penjaga</span>
+                        </div>
+                        <div class="pp-option" data-value="Umbra" onclick="pickPolarity(this)">
+                            <img src="images/Polarity/Umbra.png" alt="Umbra">
+                            <span>Umbra</span>
+                        </div>
+                        <div class="pp-option" data-value="Omni" onclick="pickPolarity(this)">
+                            <img src="images/Polarity/Omni.png" alt="Omni">
+                            <span>Omni</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="mod-name">Mod Name</label>
+                <input type="text" id="mod-name" value="Streamline" oninput="updateModName()">
+            </div>
+
+            <div class="form-group">
+                <label for="mod-effect">Effect</label>
+                <textarea id="mod-effect" rows="3" oninput="updateModEffect()">+30% Ability Efficiency</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="mod-item-type">Item Type</label>
+                <input type="text" id="mod-item-type" value="WARFRAME" oninput="updateModItemType()">
+            </div>
+
+            <div class="form-group">
+                <label for="mod-rank">Rank (0 – 10)</label>
+                <input type="number" id="mod-rank" value="5" min="0" max="10" oninput="updateModRank()">
+            </div>
+
+            <div class="form-group">
+                <label>Card Art</label>
+                <label for="mod-image-upload" class="file-label" id="mod-image-label">Upload Image</label>
+                <input type="file" id="mod-image-upload" accept="image/*">
+            </div>
+
+            <button class="download-btn" onclick="downloadCard('mod-card', 'mod-name', 'mod')">Download Card</button>
+            <button class="reset-btn" onclick="resetModCard()">Reset</button>
+
+        </div>
+
+        <div class="preview-panel">
+            <p class="preview-label">Preview</p>
+            <div class="card-container" id="mod-card">
+
+                <img src="images/CardParts/Bronze/BronzeBackground.png" class="card-bg" alt="">
+                <img src="images/CardParts/Bronze/BronzeLowerTab.png" class="card-layer card-lower-tab" alt="">
+
+                <div class="icon-wrapper">
+                    <img src="" class="icon" alt="">
+                </div>
+
+                <img src="images/CardParts/Bronze/BronzeSideLight.png" class="card-layer card-side-light card-side-right" alt="">
+                <img src="images/CardParts/Bronze/BronzeSideLight.png" class="card-layer card-side-light card-side-left" alt="">
+                <img src="images/CardParts/Bronze/BronzeTopRightBacker.png" class="card-layer card-top-right-backer" alt="">
+                <img src="images/CardParts/Bronze/BronzeFrameTop.png" class="card-layer card-frame-top" alt="">
+
+                <div class="card-cost"></div>
+                <img src="" class="polarity" alt="">
+
+                <div class="card-body-text">
+                    <div class="card-name"></div>
+                    <div class="card-effect"></div>
+                </div>
+
+                <div class="card-item-type"></div>
+
+                <div class="card-rank">
+                    <div class="rank-slots" id="mod-rank-slots"></div>
+                    <img src="images/CardParts/RankAssets/RankCompleteLine.png" class="rank-line" alt="">
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ── ARCANE TAB ── -->
+    <div class="layout" id="tab-arcane" style="display: none">
+
+        <div class="form-panel">
+
+            <div class="form-group">
+                <label for="arcane-name">Arcane Name</label>
+                <input type="text" id="arcane-name" oninput="updateArcaneName()">
+            </div>
+
+            <div class="form-group">
+                <label for="arcane-rank">Rank (0 – 5)</label>
+                <input type="number" id="arcane-rank" value="0" min="0" max="5" oninput="updateArcaneRank()">
+            </div>
+
+            <div class="form-group">
+                <label for="arcane-item-type">Item Type</label>
+                <input type="text" id="arcane-item-type" oninput="updateArcaneItemType()">
+            </div>
+
+            <div class="form-group">
+                <label for="arcane-effect">Effect</label>
+                <textarea id="arcane-effect" rows="3" oninput="updateArcaneEffect()"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="arcane-art">Arcane Art</label>
+                <select id="arcane-art" onchange="updateArcaneArt()"></select>
+            </div>
+
+            <button class="download-btn" onclick="downloadCard('arcane-card', 'arcane-name', 'arcane')">Download Card</button>
+            <button class="reset-btn" onclick="resetArcaneCard()">Reset</button>
+
+        </div>
+
+        <div class="preview-panel">
+            <p class="preview-label">Preview</p>
+            <div class="arcane-card" id="arcane-card">
+
+                <div class="arcane-image-section">
+                    <img src="images/Arcane/Arcane.png" class="arcane-frame" alt="">
+                </div>
+
+                <div class="arcane-content">
+                    <div class="arc-card-name"></div>
+                    <div class="arc-rank-dots" id="arcane-rank-dots"></div>
+                    <div class="arc-item-type-display" id="arcane-item-type-display" style="display:none"></div>
+                    <div class="arc-divider" id="arcane-divider" style="display:none"></div>
+                    <div class="arc-rank-effect">
+                        <span class="arc-rank-label" id="arcane-rank-label"></span>
+                        <span class="arc-effect-text" id="arcane-effect-text"></span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script src="arcane-images.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+
+        // ── Tab switching ──────────────────────────────────────────────────────
+        function switchTab(e, tab) {
+            document.getElementById('tab-mod').style.display    = tab === 'mod'    ? 'flex' : 'none';
+            document.getElementById('tab-arcane').style.display = tab === 'arcane' ? 'flex' : 'none';
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            e.currentTarget.classList.add('active');
+            document.body.classList.toggle('theme-arcane', tab === 'arcane');
+            document.getElementById('page-title').textContent =
+                tab === 'arcane' ? 'Warframe Custom Arcane Maker' : 'Warframe Custom Mod Maker';
+        }
+
+        // ── Shared utilities ───────────────────────────────────────────────────
+
+        const RARITY_TIER = {
+            Common:     'Bronze',
+            Uncommon:   'Silver',
+            Rare:       'Gold',
+            Legendary:  'Legendary',
+            Riven:      'Gold',
+            Archon:     'Gold',
+            Umbra:      'Gold',
+            Amalgam:    'Gold',
+            Galvanized: 'Gold',
+            Peculiar:   'Bronze',
+        };
+
+        function setCardParts(container, tier) {
+            const base = `images/CardParts/${tier}/${tier}`;
+            container.querySelector('.card-bg').src               = `${base}Background.png`;
+            container.querySelector('.card-lower-tab').src        = `${base}LowerTab.png`;
+            container.querySelectorAll('.card-side-light').forEach(el => el.src = `${base}SideLight.png`);
+            container.querySelector('.card-top-right-backer').src = `${base}TopRightBacker.png`;
+            container.querySelector('.card-frame-top').src        = `${base}FrameTop.png`;
+        }
+
+        // Clips the icon wrapper so it never overlaps the text block.
+        function updateIconClip(container) {
+            requestAnimationFrame(() => {
+                const wrapper    = container.querySelector('.icon-wrapper');
+                const icon       = container.querySelector('.icon');
+                const textBlock  = container.querySelector('.card-body-text');
+                const cardHeight = container.offsetHeight;
+                if (!cardHeight) return;
+                const clipY = textBlock.textContent.trim() ? Math.max(textBlock.offsetTop - 6, 0) : cardHeight;
+                wrapper.style.height = `${clipY}px`;
+                icon.style.top       = `${0.335 * cardHeight}px`;
+            });
+        }
+
+        // Center-crops an uploaded image file to square and sets it as the mod card icon.
+        function handleModImageUpload(file) {
+            document.getElementById('mod-image-label').textContent = file.name;
+            const reader = new FileReader();
+            reader.onload = e => {
+                const img = new Image();
+                img.onload = () => {
+                    const size   = Math.min(img.width, img.height);
+                    const canvas = document.createElement('canvas');
+                    canvas.width = canvas.height = size;
+                    canvas.getContext('2d').drawImage(img, (img.width - size) / 2, (img.height - size) / 2, size, size, 0, 0, size, size);
+                    modCard.querySelector('.icon').src = canvas.toDataURL('image/png');
+                    updateIconClip(modCard);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Center-crops a URL image to square and sets it as the mod card icon default.
+        function loadModDefaultImage(url) {
+            const img = new Image();
+            img.onload = () => {
+                const size   = Math.min(img.width, img.height);
+                const canvas = document.createElement('canvas');
+                canvas.width = canvas.height = size;
+                canvas.getContext('2d').drawImage(img, (img.width - size) / 2, (img.height - size) / 2, size, size, 0, 0, size, size);
+                modCard.querySelector('.icon').src = canvas.toDataURL('image/png');
+                updateIconClip(modCard);
+            };
+            img.src = url;
+        }
+
+        async function downloadCard(containerId, nameFieldId, defaultName) {
+            const container = document.getElementById(containerId);
+            const name      = document.getElementById(nameFieldId).value || defaultName;
+            const canvas    = await html2canvas(container, { backgroundColor: null, scale: 4, useCORS: true, allowTaint: true });
+            const link      = document.createElement('a');
+            link.download   = `${name}.png`;
+            link.href       = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // ── Mod card ──────────────────────────────────────────────────────────
+        const modCard = document.getElementById('mod-card');
+
+        function updateModBackground() {
+            const rarity = document.getElementById('mod-rarity').value || 'Common';
+            setCardParts(modCard, RARITY_TIER[rarity] || 'Bronze');
+        }
+
+        function updateModCost() {
+            modCard.querySelector('.card-cost').textContent = document.getElementById('mod-drain').value;
+        }
+
+        function togglePolarityPicker() {
+            document.getElementById('polarity-options').classList.toggle('open');
+        }
+
+        function pickPolarity(el) {
+            const value  = el.dataset.value;
+            const picker = document.getElementById('polarity-picker');
+            picker.dataset.value = value;
+            const icon  = picker.querySelector('.pp-trigger-icon');
+            const label = picker.querySelector('.pp-trigger-label');
+            if (value) {
+                icon.src          = `images/Polarity/${value}.png`;
+                label.textContent = value;
+            } else {
+                icon.src          = '';
+                label.textContent = 'None';
+            }
+            document.getElementById('polarity-options').classList.remove('open');
+            updateModPolarity();
+        }
+
+        document.addEventListener('click', e => {
+            if (!e.target.closest('#polarity-picker'))
+                document.getElementById('polarity-options').classList.remove('open');
+        });
+
+        function updateModPolarity() {
+            const value = document.getElementById('polarity-picker').dataset.value;
+            const img   = modCard.querySelector('.polarity');
+            if (value) {
+                img.src              = `images/Polarity/${value}.png`;
+                img.style.visibility = 'visible';
+            } else {
+                img.src              = '';
+                img.style.visibility = 'hidden';
+            }
+        }
+
+        function updateModName() {
+            modCard.querySelector('.card-name').textContent = document.getElementById('mod-name').value;
+            updateIconClip(modCard);
+        }
+
+        function updateModEffect() {
+            modCard.querySelector('.card-effect').textContent = document.getElementById('mod-effect').value;
+            updateIconClip(modCard);
+        }
+
+        function updateModItemType() {
+            modCard.querySelector('.card-item-type').textContent = document.getElementById('mod-item-type').value;
+        }
+
+        function updateModRank() {
+            const val   = Math.min(10, Math.max(0, parseInt(document.getElementById('mod-rank').value) || 0));
+            const slots = document.getElementById('mod-rank-slots');
+            slots.innerHTML = '';
+            for (let i = 0; i < val; i++) {
+                const img     = document.createElement('img');
+                img.src       = 'images/CardParts/RankAssets/RankSlotActive.png';
+                img.className = 'rank-slot-icon';
+                img.alt       = '';
+                slots.appendChild(img);
+            }
+        }
+
+        document.getElementById('mod-image-upload').addEventListener('change', e => {
+            if (e.target.files[0]) handleModImageUpload(e.target.files[0]);
+        });
+
+        // ── Arcane card ───────────────────────────────────────────────────────
+        const arcaneCard = document.getElementById('arcane-card');
+
+        function updateArcaneName() {
+            arcaneCard.querySelector('.arc-card-name').textContent = document.getElementById('arcane-name').value;
+        }
+
+        function updateArcaneRank() {
+            const val    = Math.min(5, Math.max(0, parseInt(document.getElementById('arcane-rank').value) || 0));
+            const dotsEl = document.getElementById('arcane-rank-dots');
+            dotsEl.innerHTML = '';
+            for (let i = 0; i < 5; i++) {
+                const dot     = document.createElement('span');
+                dot.className = 'arc-rank-dot' + (i < val ? ' filled' : '');
+                dotsEl.appendChild(dot);
+            }
+            document.getElementById('arcane-rank-label').textContent = val > 0 ? `RANK ${val}` : '';
+        }
+
+        function updateArcaneItemType() {
+            const text    = document.getElementById('arcane-item-type').value;
+            const display = document.getElementById('arcane-item-type-display');
+            const divider = document.getElementById('arcane-divider');
+            display.textContent   = text;
+            display.style.display = text ? 'block' : 'none';
+            divider.style.display = text ? 'block' : 'none';
+        }
+
+        function updateArcaneEffect() {
+            document.getElementById('arcane-effect-text').textContent = document.getElementById('arcane-effect').value;
+        }
+
+        function updateArcaneArt() {
+            arcaneCard.querySelector('.arcane-frame').src = document.getElementById('arcane-art').value;
+        }
+
+        // ── Reset ─────────────────────────────────────────────────────────────
+        function resetModCard() {
+            document.getElementById('mod-rarity').value    = '';
+            document.getElementById('mod-drain').value     = '';
+            document.getElementById('mod-name').value      = '';
+            document.getElementById('mod-effect').value    = '';
+            document.getElementById('mod-item-type').value = '';
+            document.getElementById('mod-rank').value      = '0';
+            document.getElementById('mod-image-upload').value = '';
+            updateModBackground();
+            updateModCost();
+            updateModName();
+            updateModEffect();
+            updateModItemType();
+            updateModRank();
+            const noneOpt = document.querySelector('#polarity-options .pp-option[data-value=""]');
+            if (noneOpt) pickPolarity(noneOpt);
+            modCard.querySelector('.icon').src = '';
+            document.getElementById('mod-image-label').textContent = 'Upload Image';
+            updateIconClip(modCard);
+        }
+
+        function resetArcaneCard() {
+            document.getElementById('arcane-name').value      = '';
+            document.getElementById('arcane-rank').value      = '0';
+            document.getElementById('arcane-item-type').value = '';
+            document.getElementById('arcane-effect').value    = '';
+            document.getElementById('arcane-art').selectedIndex = 0;
+            updateArcaneName();
+            updateArcaneRank();
+            updateArcaneItemType();
+            updateArcaneEffect();
+            updateArcaneArt();
+        }
+
+        // ── Init ──────────────────────────────────────────────────────────────
+        window.addEventListener('load', () => {
+            updateModBackground();
+            updateModCost();
+            updateModName();
+            updateModEffect();
+            updateModItemType();
+            updateModRank();
+            const naramonOpt = document.querySelector('#polarity-options .pp-option[data-value="Naramon"]');
+            if (naramonOpt) pickPolarity(naramonOpt);
+            loadModDefaultImage('images/CardIcon/Streamline.png');
+
+            const arcaneArtSelect = document.getElementById('arcane-art');
+            ARCANE_IMAGES.forEach(file => {
+                const label     = file.replace(/\.png$/i, '').replace(/([A-Z])/g, ' $1').trim();
+                const opt       = document.createElement('option');
+                opt.value       = `images/Arcane/${file}`;
+                opt.textContent = label;
+                arcaneArtSelect.appendChild(opt);
+            });
+
+            document.getElementById('arcane-name').value      = 'Arcane Energize';
+            document.getElementById('arcane-rank').value      = '5';
+            document.getElementById('arcane-item-type').value = 'Warframe';
+            document.getElementById('arcane-effect').value    = 'On Energy Pickup:\n60% chance to replenish 150 Energy to self and allies within 15m\n15s cooldown';
+            arcaneArtSelect.value = 'images/Arcane/ArcaneEnergize.png';
+
+            updateArcaneName();
+            updateArcaneArt();
+            updateArcaneRank();
+            updateArcaneItemType();
+            updateArcaneEffect();
+        });
+
+    </script>
+</body>
+</html>
