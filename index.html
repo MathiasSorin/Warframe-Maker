@@ -305,9 +305,15 @@
                 const textBlock  = container.querySelector('.card-body-text');
                 const cardHeight = container.offsetHeight;
                 if (!cardHeight) return;
-                const clipY = textBlock.textContent.trim() ? Math.max(textBlock.offsetTop - 8, 0) : cardHeight;
+                const clipY   = textBlock.textContent.trim() ? Math.max(textBlock.offsetTop - 8, 0) : cardHeight;
                 wrapper.style.height = `${clipY}px`;
-                icon.style.top       = `${0.355 * cardHeight}px`;
+                const iconTop = 0.355 * cardHeight;
+                icon.style.top = `${iconTop}px`;
+                const iconSize    = wrapper.offsetWidth * 0.9;
+                const canvasTop   = Math.max(0, iconTop - iconSize / 2 -15);
+                const canvas      = container.querySelector('.icon-fade');
+                canvas.style.top    = `${canvasTop}px`;
+                canvas.style.height = `${clipY - canvasTop}px`;
                 drawIconFade();
             });
         }
