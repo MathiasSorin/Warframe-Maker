@@ -375,6 +375,17 @@ input[type="file"] {
     z-index: 2;
 }
 
+
+.icon-fade {
+    position: absolute;
+    top: 3%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 96%;
+    height: 97%;
+    pointer-events: none;
+}
+
 /* JS sets top in px (33.5% of card height) after layout */
 .icon {
     position: absolute;
