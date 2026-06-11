@@ -362,7 +362,17 @@
         }
 
         function updateModCost() {
-            modCard.querySelector('.card-cost').textContent = document.getElementById('mod-drain').value;
+            const val = document.getElementById('mod-drain').value;
+            modCard.querySelector('.card-cost').textContent = val;
+            const backer = modCard.querySelector('.card-top-right-backer');
+            const digits = String(Math.abs(parseInt(val) || 0)).length;
+            if (digits >= 2) {
+                backer.style.transform = 'scaleX(1.25) scaleY(1)';
+                backer.style.right = '3.5%';
+            } else {
+                backer.style.transform = 'scaleX(1.1) scaleY(1)';
+                backer.style.right = '2.2%';
+            }
         }
 
         function togglePolarityPicker() {

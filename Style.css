@@ -359,7 +359,8 @@ input[type="file"] {
     z-index: 4;
     width: 18%;
     top: 4.3%;
-    right: 1.5%;
+    right: 2.2%;
+    transform: scaleX(1.1) scaleY(1);
 }
 
 /* html2canvas honours overflow:hidden but not clip-path — use this wrapper to clip the icon */
@@ -392,23 +393,22 @@ input[type="file"] {
 
 .card-cost {
     position: absolute;
-    top: 7.8%;
-    right: 12%;
-    transform: translate(50%, -50%);
+    top: 7.9%;
+    right: 10.5%;
+    transform: translateY(-50%) scaleY(1);
     color: white;
-    font-weight: 700;
-    font-size: 20px;
+    font-weight: 510;
+    font-size: 26px;
     font-family: 'Roboto', sans-serif;
     z-index: 6;
-    line-height: 1;
 }
 
 .polarity {
     position: absolute;
     top: 7.8%;
-    right: 4%;
+    right: 3.5%;
     transform: translateY(-50%);
-    width: 5%;
+    width: 6.5%;
     z-index: 6;
     pointer-events: none;
     visibility: hidden;
@@ -451,7 +451,7 @@ input[type="file"] {
 
 .card-item-type {
     position: absolute;
-    bottom: 10.5%;
+    bottom: 10.6%;
     left: 50%;
     transform: translateX(-50%);
     color: white;
