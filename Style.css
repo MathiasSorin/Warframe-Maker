@@ -381,6 +381,8 @@ input[type="file"] {
     left: 2%;
     width: 96%;
     pointer-events: none;
+    z-index: 3;
+    opacity: 0.75;
 }
 
 /* JS sets top in px (33.5% of card height) after layout */

@@ -275,6 +275,9 @@
             });
         }
 
+        const ICON_FADE_PCT  = 0.02; // icon bottom fade as a fraction of icon size
+        const COLOR_FADE_PCT = 0.02; // color overlay bottom fade as a fraction of icon size
+
         const RARITY_TIER = {
             Common:     'Bronze',
             Uncommon:   'Silver',
@@ -305,16 +308,26 @@
                 const textBlock  = container.querySelector('.card-body-text');
                 const cardHeight = container.offsetHeight;
                 if (!cardHeight) return;
-                const clipY   = textBlock.textContent.trim() ? Math.max(textBlock.offsetTop - 8, 0) : cardHeight;
-                wrapper.style.height = `${clipY}px`;
-                const iconTop = 0.355 * cardHeight;
-                icon.style.top = `${iconTop}px`;
-                const iconSize    = wrapper.offsetWidth * 0.9;
-                const canvasTop   = Math.max(0, iconTop - iconSize / 2 -15);
-                const canvas      = container.querySelector('.icon-fade');
-                canvas.style.top    = `${canvasTop}px`;
-                const iconBottom   = iconTop + iconSize / 2 + 16;
-                canvas.style.height = `${Math.min(clipY, iconBottom) - canvasTop}px`;
+
+                _clipY   = textBlock.textContent.trim() ? Math.max(textBlock.offsetTop - 8, 0) : cardHeight;
+                _iconTop = 0.355 * cardHeight;
+
+                wrapper.style.height = `${_clipY}px`;
+                icon.style.top       = `${_iconTop}px`;
+
+                // Read actual rendered icon size (includes CSS width:94% + scaleY:1.05 transform).
+                const cardRect = container.getBoundingClientRect();
+                const iconRect = icon.getBoundingClientRect();
+                _iconSize  = iconRect.height;
+                _canvasTop = Math.max(0, iconRect.top - cardRect.top);
+
+                // Canvas always covers the full icon area — never shrinks with text.
+                // The bottom fade is drawn at _clipY inside the canvas.
+                const canvas = container.querySelector('.icon-fade');
+                canvas.style.top    = `${_canvasTop}px`;
+                canvas.style.height = `${_iconSize}px`;
+
+                rebakeIconFade();
                 drawIconFade();
             });
         }
@@ -330,7 +343,9 @@
                     const canvas = document.createElement('canvas');
                     canvas.width = canvas.height = size;
                     canvas.getContext('2d').drawImage(img, (img.width - size) / 2, (img.height - size) / 2, size, size, 0, 0, size, size);
-                    modCard.querySelector('.icon').src = canvas.toDataURL('image/png');
+                    _origIconDataUrl = canvas.toDataURL('image/png');
+                    _origIconSize    = size;
+                    modCard.querySelector('.icon').src = _origIconDataUrl;
                     updateIconClip(modCard);
                 };
                 img.src = e.target.result;
@@ -346,7 +361,9 @@
                 const canvas = document.createElement('canvas');
                 canvas.width = canvas.height = size;
                 canvas.getContext('2d').drawImage(img, (img.width - size) / 2, (img.height - size) / 2, size, size, 0, 0, size, size);
-                modCard.querySelector('.icon').src = canvas.toDataURL('image/png');
+                _origIconDataUrl = canvas.toDataURL('image/png');
+                _origIconSize    = size;
+                modCard.querySelector('.icon').src = _origIconDataUrl;
                 updateIconClip(modCard);
             };
             img.src = url;
@@ -380,7 +397,53 @@
         };
 
 
-        let modFadeColor = '#c49a5a';
+        let modFadeColor     = '#c49a5a';
+        let _origIconDataUrl = null;
+        let _origIconSize    = 0;
+        let _clipY           = null;
+        let _iconTop         = 0;
+        let _iconSize        = 0;
+        let _canvasTop       = 0;
+        let _rebakeGen       = 0;
+
+        function rebakeIconFade() {
+            if (!_origIconDataUrl || !_iconSize) return;
+            const gen = ++_rebakeGen;
+            const img = new Image();
+            img.onload = () => {
+                if (gen !== _rebakeGen) return; // stale — a newer call supersedes this one
+
+                // Always use current global state so rapid calls converge on the latest clip.
+                const clipY    = _clipY ?? modCard.offsetHeight;
+                const iconTop  = _iconTop;
+                const iconSize = _iconSize;
+                const s        = _origIconSize;
+
+                const offscreen = document.createElement('canvas');
+                offscreen.width = offscreen.height = s;
+                const ctx = offscreen.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+
+                // Fraction of the icon that is visible above the clip line (0–1).
+                const iconTopEdge   = iconTop - iconSize / 2;
+                const visibleBottom = Math.min(clipY, iconTop + iconSize / 2);
+                const visibleFrac   = Math.max(0, (visibleBottom - iconTopEdge) / iconSize);
+
+                // Fade zone: ICON_FADE_PCT of image height, ending at the clip boundary.
+                const fadeEndPx   = visibleFrac * s;
+                const fadeStartPx = Math.max(0, fadeEndPx - ICON_FADE_PCT * s);
+
+                const grad = ctx.createLinearGradient(0, fadeStartPx, 0, Math.max(fadeStartPx + 1, fadeEndPx));
+                grad.addColorStop(0, 'rgba(0,0,0,1)');
+                grad.addColorStop(1, 'rgba(0,0,0,0)');
+                ctx.globalCompositeOperation = 'destination-in';
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, s, s);
+                ctx.globalCompositeOperation = 'source-over';
+                modCard.querySelector('.icon').src = offscreen.toDataURL('image/png');
+            };
+            img.src = _origIconDataUrl;
+        }
 
         function hexToRgba(hex, alpha) {
             const r = parseInt(hex.slice(1, 3), 16);
@@ -391,29 +454,37 @@
 
         function drawIconFade() {
             requestAnimationFrame(() => {
-                const canvas  = modCard.querySelector('.icon-fade');
+                const canvas = modCard.querySelector('.icon-fade');
                 const w = canvas.offsetWidth;
                 const h = canvas.offsetHeight;
                 if (!w || !h) return;
                 canvas.width  = w;
                 canvas.height = h;
                 const ctx = canvas.getContext('2d');
-                const cx  = w / 2;
-                const cy  = h / 2;
-                const r   = Math.sqrt(cx * cx + cy * cy);
-                const grad = ctx.createRadialGradient(cx, cy, r * 0.55, cx, cy, r);
+
+                // Canvas exactly covers the icon, so the icon center is always at h/2.
+                const cx = w / 2;
+                const cy = h / 2;
+                const r  = Math.sqrt(cx * cx + (h / 2) ** 2);
+                const grad = ctx.createRadialGradient(cx, cy, r * 0.7, cx, cy, r);
                 grad.addColorStop(0, hexToRgba(modFadeColor, 0));
                 grad.addColorStop(1, hexToRgba(modFadeColor, 1));
                 ctx.clearRect(0, 0, w, h);
                 ctx.fillStyle = grad;
                 ctx.fillRect(0, 0, w, h);
 
-                // Bottom fade into card background
-                const bottomGrad = ctx.createLinearGradient(0, h * 1, 0, h);
-                bottomGrad.addColorStop(0, hexToRgba(modFadeColor, 0));
-                bottomGrad.addColorStop(1, hexToRgba(modFadeColor, 1));
-                ctx.fillStyle = bottomGrad;
-                ctx.fillRect(0, h * 1, w, h * 0.45);
+                // Bottom fade at clipY: fade zone is COLOR_FADE_PCT of icon size (constant).
+                const clipInCanvas = (_clipY ?? modCard.offsetHeight) - _canvasTop;
+                const fadeHeight   = _iconSize * COLOR_FADE_PCT;
+                const fadeStart    = Math.max(0, clipInCanvas - fadeHeight);
+                const fadeEnd      = Math.max(fadeStart + 1, clipInCanvas);
+                const bottomMask   = ctx.createLinearGradient(0, fadeStart, 0, fadeEnd);
+                bottomMask.addColorStop(0, 'rgba(0,0,0,1)');
+                bottomMask.addColorStop(1, 'rgba(0,0,0,0)');
+                ctx.globalCompositeOperation = 'destination-in';
+                ctx.fillStyle = bottomMask;
+                ctx.fillRect(0, 0, w, h);
+                ctx.globalCompositeOperation = 'source-over';
             });
         }
 
