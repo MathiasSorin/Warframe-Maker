@@ -118,6 +118,11 @@
                 <input type="number" id="mod-rank" value="5" min="0" max="10" oninput="updateModRank()">
             </div>
 
+            <div class="form-group form-group-inline">
+                <input type="checkbox" id="mod-exilus" onchange="updateModExilus()">
+                <label for="mod-exilus">Exilus Mod</label>
+            </div>
+
             <div class="form-group">
                 <label>Card Art</label>
                 <label for="mod-image-upload" class="file-label" id="mod-image-label">Upload Image</label>
@@ -145,6 +150,7 @@
                 <img src="images/CardParts/Bronze/BronzeSideLight.png" class="card-layer card-side-light card-side-left" alt="">
                 <img src="images/CardParts/Bronze/BronzeTopRightBacker.png" class="card-layer card-top-right-backer" alt="">
                 <img src="images/CardParts/Bronze/BronzeFrameTop.png" class="card-layer card-frame-top" alt="">
+                <img src="images/CardParts/Exilus.png" class="card-layer card-exilus" alt="">
 
                 <div class="card-cost"></div>
                 <img src="" class="polarity" alt="">
@@ -499,6 +505,7 @@
             modCard.querySelector('.card-item-type').style.color  = textColor;
             modCard.querySelector('.card-cost').style.color       = textColor;
             updateModPolarity();
+            if (document.getElementById('mod-exilus').checked) colorizeExilus(textColor);
         }
 
         function updateModCost() {
@@ -584,6 +591,30 @@
             modCard.querySelector('.card-item-type').textContent = document.getElementById('mod-item-type').value;
         }
 
+        function colorizeExilus(color) {
+            const img = modCard.querySelector('.card-exilus');
+            const tempImg = new Image();
+            tempImg.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width  = tempImg.naturalWidth;
+                canvas.height = tempImg.naturalHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(tempImg, 0, 0);
+                ctx.globalCompositeOperation = 'source-in';
+                ctx.fillStyle = color;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                img.src = canvas.toDataURL('image/png');
+            };
+            tempImg.src = 'images/CardParts/Exilus.png';
+        }
+
+        function updateModExilus() {
+            const show   = document.getElementById('mod-exilus').checked;
+            const rarity = document.getElementById('mod-rarity').value || 'Common';
+            modCard.querySelector('.card-exilus').style.display = show ? 'block' : 'none';
+            if (show) colorizeExilus(RARITY_TEXT_COLOR[rarity] || '#ffffff');
+        }
+
         function updateModRank() {
             const val   = Math.min(10, Math.max(0, parseInt(document.getElementById('mod-rank').value) || 0));
             const slots = document.getElementById('mod-rank-slots');
@@ -646,12 +677,14 @@
             document.getElementById('mod-item-type').value = '';
             document.getElementById('mod-rank').value      = '0';
             document.getElementById('mod-image-upload').value = '';
+            document.getElementById('mod-exilus').checked  = false;
             updateModBackground();
             updateModCost();
             updateModName();
             updateModEffect();
             updateModItemType();
             updateModRank();
+            updateModExilus();
             const noneOpt = document.querySelector('#polarity-options .pp-option[data-value=""]');
             if (noneOpt) pickPolarity(noneOpt);
             modCard.querySelector('.icon').src = '';

@@ -50,6 +50,17 @@ h1 {
     gap: 5px;
 }
 
+.form-group-inline {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-group-inline label {
+    margin: 0;
+    cursor: pointer;
+}
+
 label {
     font-size: 11px;
     font-weight: 700;
@@ -325,6 +336,15 @@ input[type="file"] {
   All sizes are % of the 252px background canvas width.
   Vertical positions are % of the 374px canvas height.
 */
+
+.card-exilus {             /* 20×15 px — Exilus indicator, top center */
+    z-index: 6;
+    width: 7.94%;
+    top: 3.5%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+}
 
 .card-frame-top {          /* 281×117 px — wider than card, centered at top */
     z-index: 5;
