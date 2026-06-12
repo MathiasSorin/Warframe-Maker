@@ -466,7 +466,7 @@
                 const cx = w / 2;
                 const cy = h / 2;
                 const r  = Math.sqrt(cx * cx + (h / 2) ** 2);
-                const grad = ctx.createRadialGradient(cx, cy, r * 0.7, cx, cy, r);
+                const grad = ctx.createRadialGradient(cx, cy, r * 0.65, cx, cy, r);
                 grad.addColorStop(0, hexToRgba(modFadeColor, 0));
                 grad.addColorStop(1, hexToRgba(modFadeColor, 1));
                 ctx.clearRect(0, 0, w, h);
