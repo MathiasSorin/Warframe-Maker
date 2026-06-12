@@ -198,7 +198,8 @@
             </div>
 
             <div class="form-group">
-                <label for="arcane-art">Arcane Art</label>
+                <label for="arcane-art-search">Arcane Art</label>
+                <input type="text" id="arcane-art-search" placeholder="Search arcanes…" oninput="filterArcaneArt()">
                 <select id="arcane-art" onchange="updateArcaneArt()"></select>
             </div>
 
@@ -664,6 +665,58 @@
             document.getElementById('arcane-effect-text').innerHTML = parseEffectText(document.getElementById('arcane-effect').value);
         }
 
+        const ARCANE_GROUP_PREFIXES = [
+            'Arcane', 'Magus', 'Virtuos', 'Exodia', 'Pax',
+            'Molt', 'Residual', 'Theorem', 'Cascadia', 'Conjunction',
+            'Emergence', 'Eternal', 'Primary', 'Secondary', 'Melee',
+            'Shotgun', 'Longbow', 'Akimbo',
+        ];
+
+        function arcaneLabel(file) {
+            return file.replace(/\.png$/i, '').replace(/([A-Z])/g, ' $1').trim();
+        }
+
+        function arcaneGroup(file) {
+            const label = arcaneLabel(file);
+            return ARCANE_GROUP_PREFIXES.find(p => label.startsWith(p)) || 'Other';
+        }
+
+        function buildArcaneSelect(filter = '') {
+            const select = document.getElementById('arcane-art');
+            const prev   = select.value;
+            select.innerHTML = '';
+            const q = filter.toLowerCase();
+
+            const grouped = {};
+            ARCANE_IMAGES.forEach(file => {
+                const label = arcaneLabel(file);
+                if (q && !label.toLowerCase().includes(q)) return;
+                const g = arcaneGroup(file);
+                (grouped[g] = grouped[g] || []).push({ file, label });
+            });
+
+            ARCANE_GROUP_PREFIXES.concat(['Other']).forEach(g => {
+                if (!grouped[g]) return;
+                const grp = document.createElement('optgroup');
+                grp.label = g;
+                grouped[g].forEach(({ file, label }) => {
+                    const opt = document.createElement('option');
+                    opt.value = `images/Arcane/${file}`;
+                    opt.textContent = label;
+                    grp.appendChild(opt);
+                });
+                select.appendChild(grp);
+            });
+
+            if (prev) select.value = prev;
+        }
+
+        function filterArcaneArt() {
+            const q = document.getElementById('arcane-art-search').value;
+            buildArcaneSelect(q);
+            updateArcaneArt();
+        }
+
         function updateArcaneArt() {
             arcaneCard.querySelector('.arcane-frame').src = document.getElementById('arcane-art').value;
         }
@@ -697,6 +750,8 @@
             document.getElementById('arcane-rank').value      = '0';
             document.getElementById('arcane-item-type').value = '';
             document.getElementById('arcane-effect').value    = '';
+            document.getElementById('arcane-art-search').value = '';
+            buildArcaneSelect();
             document.getElementById('arcane-art').selectedIndex = 0;
             updateArcaneName();
             updateArcaneRank();
@@ -717,20 +772,13 @@
             if (naramonOpt) pickPolarity(naramonOpt);
             loadModDefaultImage('images/CardIcon/Streamline.png');
 
-            const arcaneArtSelect = document.getElementById('arcane-art');
-            ARCANE_IMAGES.forEach(file => {
-                const label     = file.replace(/\.png$/i, '').replace(/([A-Z])/g, ' $1').trim();
-                const opt       = document.createElement('option');
-                opt.value       = `images/Arcane/${file}`;
-                opt.textContent = label;
-                arcaneArtSelect.appendChild(opt);
-            });
+            buildArcaneSelect();
 
             document.getElementById('arcane-name').value      = 'Arcane Energize';
             document.getElementById('arcane-rank').value      = '5';
             document.getElementById('arcane-item-type').value = 'Warframe';
             document.getElementById('arcane-effect').value    = 'On Energy Pickup:\n60% chance to replenish 150 Energy to self and allies within 15m\n15s cooldown';
-            arcaneArtSelect.value = 'images/Arcane/ArcaneEnergize.png';
+            document.getElementById('arcane-art').value = 'images/Arcane/ArcaneEnergize.png';
 
             updateArcaneName();
             updateArcaneArt();
