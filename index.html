@@ -127,6 +127,11 @@
                 <label>Card Art</label>
                 <label for="mod-image-upload" class="file-label" id="mod-image-label">Upload Image</label>
                 <input type="file" id="mod-image-upload" accept="image/*">
+                <input type="checkbox" id="mod-res-toggle" class="res-toggle-input" onchange="updateIconRes()">
+                <label for="mod-res-toggle" class="res-toggle-label">
+                    <span class="res-opt res-left">Hi Res</span>
+                    <span class="res-opt res-right">Lo Res</span>
+                </label>
             </div>
 
             <button class="download-btn" onclick="downloadCard('mod-card', 'mod-name', 'mod')">Download Card</button>
@@ -339,19 +344,60 @@
             });
         }
 
-        // Center-crops an uploaded image file to square and sets it as the mod card icon.
+        // Center-crops to square at original resolution (hi res).
+        function cropSquare(img) {
+            const size   = Math.min(img.width, img.height);
+            const canvas = document.createElement('canvas');
+            canvas.width = canvas.height = size;
+            canvas.getContext('2d').drawImage(
+                img,
+                (img.width - size) / 2, (img.height - size) / 2, size, size,
+                0, 0, size, size
+            );
+            return { dataUrl: canvas.toDataURL('image/png'), size };
+        }
+
+        // Center-crops and resizes to 256x256 (lo res).
+        function cropAndResize256(img) {
+            const size   = Math.min(img.width, img.height);
+            const canvas = document.createElement('canvas');
+            canvas.width = canvas.height = 256;
+            canvas.getContext('2d').drawImage(
+                img,
+                (img.width - size) / 2, (img.height - size) / 2, size, size,
+                0, 0, 256, 256
+            );
+            return canvas.toDataURL('image/png');
+        }
+
+        function updateIconRes() {
+            if (!_origIconDataUrlHi) return;
+            const loRes = document.getElementById('mod-res-toggle').checked;
+            _origIconDataUrl = loRes ? _origIconDataUrlLo : _origIconDataUrlHi;
+            _origIconSize    = loRes ? 256 : _hiResSize;
+            rebakeIconFade();
+        }
+
+        let _hiResSize = 0;
+
+        function applyIconVersions(img) {
+            const hi           = cropSquare(img);
+            _origIconDataUrlHi = hi.dataUrl;
+            _origIconDataUrlLo = cropAndResize256(img);
+            _hiResSize         = hi.size;
+            const loRes        = document.getElementById('mod-res-toggle').checked;
+            _origIconDataUrl   = loRes ? _origIconDataUrlLo : _origIconDataUrlHi;
+            _origIconSize      = loRes ? 256 : _hiResSize;
+        }
+
+        // Center-crops an uploaded image file and sets it as the mod card icon.
         function handleModImageUpload(file) {
             document.getElementById('mod-image-label').textContent = file.name;
             const reader = new FileReader();
             reader.onload = e => {
                 const img = new Image();
                 img.onload = () => {
-                    const size   = Math.min(img.width, img.height);
-                    const canvas = document.createElement('canvas');
-                    canvas.width = canvas.height = size;
-                    canvas.getContext('2d').drawImage(img, (img.width - size) / 2, (img.height - size) / 2, size, size, 0, 0, size, size);
-                    _origIconDataUrl = canvas.toDataURL('image/png');
-                    _origIconSize    = size;
+                    applyIconVersions(img);
                     modCard.querySelector('.icon').src = _origIconDataUrl;
                     updateIconClip(modCard);
                 };
@@ -360,16 +406,11 @@
             reader.readAsDataURL(file);
         }
 
-        // Center-crops a URL image to square and sets it as the mod card icon default.
+        // Center-crops a URL image and sets it as the mod card icon default.
         function loadModDefaultImage(url) {
             const img = new Image();
             img.onload = () => {
-                const size   = Math.min(img.width, img.height);
-                const canvas = document.createElement('canvas');
-                canvas.width = canvas.height = size;
-                canvas.getContext('2d').drawImage(img, (img.width - size) / 2, (img.height - size) / 2, size, size, 0, 0, size, size);
-                _origIconDataUrl = canvas.toDataURL('image/png');
-                _origIconSize    = size;
+                applyIconVersions(img);
                 modCard.querySelector('.icon').src = _origIconDataUrl;
                 updateIconClip(modCard);
             };
@@ -404,9 +445,11 @@
         };
 
 
-        let modFadeColor     = '#c49a5a';
-        let _origIconDataUrl = null;
-        let _origIconSize    = 0;
+        let modFadeColor       = '#c49a5a';
+        let _origIconDataUrl   = null;
+        let _origIconDataUrlHi = null;
+        let _origIconDataUrlLo = null;
+        let _origIconSize      = 0;
         let _clipY           = null;
         let _iconTop         = 0;
         let _iconSize        = 0;
@@ -730,6 +773,7 @@
             document.getElementById('mod-item-type').value = '';
             document.getElementById('mod-rank').value      = '0';
             document.getElementById('mod-image-upload').value = '';
+            document.getElementById('mod-res-toggle').checked = false;
             document.getElementById('mod-exilus').checked  = false;
             updateModBackground();
             updateModCost();

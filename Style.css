@@ -83,6 +83,47 @@ h1 {
     background: #1e1a0e;
 }
 
+/* ── Hi Res / Lo Res pill toggle ── */
+.res-toggle-input { display: none; }
+
+.res-toggle-label {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: #13132a;
+    border: 1px solid #2a2a46;
+    border-radius: 3px;
+    cursor: pointer;
+    overflow: hidden;
+    margin-top: 6px;
+    transition: border-color 0.15s;
+}
+
+.res-toggle-label:hover { border-color: #c8aa6e; }
+
+.res-opt {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-family: 'Roboto', sans-serif;
+    text-align: center;
+    padding: 7px 4px;
+    color: #7a7a9a;
+    transition: color 0.15s, background 0.15s;
+}
+
+/* Unchecked = Hi Res active */
+.res-toggle-input:not(:checked) + .res-toggle-label .res-left {
+    color: #c8aa6e;
+    background: #1e1a0e;
+}
+
+/* Checked = Lo Res active */
+.res-toggle-input:checked + .res-toggle-label .res-right {
+    color: #c8aa6e;
+    background: #1e1a0e;
+}
+
 label {
     font-size: 11px;
     font-weight: 700;
