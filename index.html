@@ -372,6 +372,14 @@
             Legendary: '#88eeff',
         };
 
+        const RARITY_TEXT_COLOR = {
+            Common:    '#d4907a',
+            Uncommon:  '#ffffff',
+            Rare:      '#ffffff',
+            Legendary: '#ffffff',
+        };
+
+
         let modFadeColor = '#c49a5a';
 
         function hexToRgba(hex, alpha) {
@@ -410,10 +418,16 @@
         }
 
         function updateModBackground() {
-            const rarity = document.getElementById('mod-rarity').value || 'Common';
+            const rarity    = document.getElementById('mod-rarity').value || 'Common';
             setCardParts(modCard, RARITY_TIER[rarity] || 'Bronze');
             modFadeColor = RARITY_FADE[rarity] || '#0d0d1a';
             drawIconFade();
+            const textColor = RARITY_TEXT_COLOR[rarity] || '#ffffff';
+            modCard.querySelector('.card-name').style.color       = textColor;
+            modCard.querySelector('.card-effect').style.color     = textColor;
+            modCard.querySelector('.card-item-type').style.color  = textColor;
+            modCard.querySelector('.card-cost').style.color       = textColor;
+            updateModPolarity();
         }
 
         function updateModCost() {
@@ -456,16 +470,33 @@
                 document.getElementById('polarity-options').classList.remove('open');
         });
 
-        function updateModPolarity() {
-            const value = document.getElementById('polarity-picker').dataset.value;
-            const img   = modCard.querySelector('.polarity');
-            if (value) {
-                img.src              = `images/Polarity/${value}.png`;
-                img.style.visibility = 'visible';
-            } else {
-                img.src              = '';
+        function colorizePolarity(value, color) {
+            const img = modCard.querySelector('.polarity');
+            if (!value) {
+                img.src = '';
                 img.style.visibility = 'hidden';
+                return;
             }
+            const tempImg = new Image();
+            tempImg.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width  = tempImg.naturalWidth;
+                canvas.height = tempImg.naturalHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(tempImg, 0, 0);
+                ctx.globalCompositeOperation = 'source-in';
+                ctx.fillStyle = color;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                img.src = canvas.toDataURL('image/png');
+                img.style.visibility = 'visible';
+            };
+            tempImg.src = `images/Polarity/${value}.png`;
+        }
+
+        function updateModPolarity() {
+            const value  = document.getElementById('polarity-picker').dataset.value;
+            const rarity = document.getElementById('mod-rarity').value || 'Common';
+            colorizePolarity(value, RARITY_TEXT_COLOR[rarity] || '#ffffff');
         }
 
         function updateModName() {
