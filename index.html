@@ -313,7 +313,8 @@
                 const canvasTop   = Math.max(0, iconTop - iconSize / 2 -15);
                 const canvas      = container.querySelector('.icon-fade');
                 canvas.style.top    = `${canvasTop}px`;
-                canvas.style.height = `${clipY - canvasTop}px`;
+                const iconBottom   = iconTop + iconSize / 2 + 16;
+                canvas.style.height = `${Math.min(clipY, iconBottom) - canvasTop}px`;
                 drawIconFade();
             });
         }
@@ -365,9 +366,9 @@
         const modCard = document.getElementById('mod-card');
 
         const RARITY_FADE = {
-            Common:    '#c49a5a',
+            Common:    '#a8824a',
             Uncommon:  '#5599ff',
-            Rare:      '#c8b870',
+            Rare:      '#e8d040',
             Legendary: '#88eeff',
         };
 
@@ -606,7 +607,7 @@
     </script>
 
     <footer>
-        If you want to support me you can send me a little something ♥ - my in-game name is <span class="ign">Firetwice</span>
+        If you want to support me you can send me a little gift in-game ♥ - my IGN is <span class="ign">Firetwice</span>
         <br><br>
         <a href="about.html" class="footer-link">About</a>
         &nbsp;·&nbsp;
