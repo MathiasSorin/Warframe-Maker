@@ -50,15 +50,37 @@ h1 {
     gap: 5px;
 }
 
-.form-group-inline {
-    flex-direction: row;
-    align-items: center;
-    gap: 8px;
+.toggle-checkbox {
+    display: none;
 }
 
-.form-group-inline label {
-    margin: 0;
+.toggle-label {
+    display: block;
+    width: 100%;
+    background: #13132a;
+    border: 1px solid #2a2a46;
+    border-radius: 3px;
+    color: #7a7a9a;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-family: 'Roboto', sans-serif;
     cursor: pointer;
+    text-align: center;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.toggle-label:hover {
+    border-color: #c8aa6e;
+    color: #c8aa6e;
+}
+
+.toggle-checkbox:checked + .toggle-label {
+    border-color: #c8aa6e;
+    color: #c8aa6e;
+    background: #1e1a0e;
 }
 
 label {
