@@ -712,11 +712,11 @@
             'Arcane', 'Magus', 'Virtuos', 'Exodia', 'Pax',
             'Molt', 'Residual', 'Theorem', 'Cascadia', 'Conjunction',
             'Emergence', 'Eternal', 'Primary', 'Secondary', 'Melee',
-            'Shotgun', 'Longbow', 'Akimbo',
+            'Shotgun', 'Longbow', 'Akimbo', 'Zid',
         ];
 
         function arcaneLabel(file) {
-            return file.replace(/\.png$/i, '').replace(/([A-Z])/g, ' $1').trim();
+            return file.replace(/\.png$/i, '').replace(/(?<!-)([A-Z])/g, ' $1').trim();
         }
 
         function arcaneGroup(file) {
