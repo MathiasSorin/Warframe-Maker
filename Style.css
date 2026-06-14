@@ -468,6 +468,11 @@ input[type="file"] {
     opacity: 0.75;
 }
 
+[data-tier="Galvanized"] .card-side-light { top: 8.8%; }
+[data-tier="Galvanized"] .card-side-right { right: 2.5%; transform: scaleX(-1); }
+[data-tier="Galvanized"] .card-side-left  { left: 2.5%;  transform: scaleX(1); }
+[data-tier="Galvanized"] .icon { transform: translate(-50%, -50%) scaleX(0.935) scaleY(1.05); }
+
 /* JS sets top in px (33.5% of card height) after layout */
 .icon {
     position: absolute;

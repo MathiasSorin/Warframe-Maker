@@ -40,6 +40,7 @@
                     <option value="Uncommon">Uncommon</option>
                     <option value="Rare" selected>Rare</option>
                     <option value="Legendary">Legendary</option>
+                    <option value="Galvanized">Galvanized</option>
                 </select>
             </div>
 
@@ -299,17 +300,74 @@
             Archon:     'Gold',
             Umbra:      'Gold',
             Amalgam:    'Gold',
-            Galvanized: 'Gold',
+            Galvanized: 'Galvanized',
             Peculiar:   'Bronze',
         };
 
+        // Pixel dimensions for every tier. bgW = intrinsic background width.
+        // w = intrinsic asset width. setCardParts computes % from these — no CSS overrides needed.
+        const TIER_LAYOUT = {
+            Bronze: {
+                bgW: 252,
+                bg:             'images/CardParts/Bronze/BronzeBackground.png',
+                frameTop:       { src: 'images/CardParts/Bronze/BronzeFrameTop.png',       w: 281 },
+                lowerTab:       { src: 'images/CardParts/Bronze/BronzeLowerTab.png',        w: 210 },
+                sideLight:      { src: 'images/CardParts/Bronze/BronzeSideLight.png',       w: 16  },
+                topRightBacker: { src: 'images/CardParts/Bronze/BronzeTopRightBacker.png',  w: 45  },
+            },
+            Silver: {
+                bgW: 252,
+                bg:             'images/CardParts/Silver/SilverBackground.png',
+                frameTop:       { src: 'images/CardParts/Silver/SilverFrameTop.png',       w: 281 },
+                lowerTab:       { src: 'images/CardParts/Silver/SilverLowerTab.png',        w: 210 },
+                sideLight:      { src: 'images/CardParts/Silver/SilverSideLight.png',       w: 16  },
+                topRightBacker: { src: 'images/CardParts/Silver/SilverTopRightBacker.png',  w: 45  },
+            },
+            Gold: {
+                bgW: 252,
+                bg:             'images/CardParts/Gold/GoldBackground.png',
+                frameTop:       { src: 'images/CardParts/Gold/GoldFrameTop.png',       w: 281 },
+                lowerTab:       { src: 'images/CardParts/Gold/GoldLowerTab.png',        w: 210 },
+                sideLight:      { src: 'images/CardParts/Gold/GoldSideLight.png',       w: 16  },
+                topRightBacker: { src: 'images/CardParts/Gold/GoldTopRightBacker.png',  w: 45  },
+            },
+            Legendary: {
+                bgW: 252,
+                bg:             'images/CardParts/Legendary/LegendaryBackground.png',
+                frameTop:       { src: 'images/CardParts/Legendary/LegendaryFrameTop.png',       w: 281 },
+                lowerTab:       { src: 'images/CardParts/Legendary/LegendaryLowerTab.png',        w: 210 },
+                sideLight:      { src: 'images/CardParts/Legendary/LegendarySideLight.png',       w: 16  },
+                topRightBacker: { src: 'images/CardParts/Legendary/LegendaryTopRightBacker.png',  w: 45  },
+            },
+            Galvanized: {
+                bgW: 252,
+                bg:             'images/CardParts/Galvanized/GalvanizedModCard.png',
+                frameTop:       { src: 'images/CardParts/Galvanized/GalvanizedFrameTop.png',      w: 257 },
+                lowerTab:       { src: 'images/CardParts/Galvanized/SilverLowerTab.png',           w: 210 },
+                sideLight:      { src: 'images/CardParts/Galvanized/GalvanizedSideLight.png',      w: 34  },
+                topRightBacker: { src: 'images/CardParts/Galvanized/SilverTopRightBacker.png',     w: 45  },
+            },
+        };
+
         function setCardParts(container, tier) {
-            const base = `images/CardParts/${tier}/${tier}`;
-            container.querySelector('.card-bg').src               = `${base}Background.png`;
-            container.querySelector('.card-lower-tab').src        = `${base}LowerTab.png`;
-            container.querySelectorAll('.card-side-light').forEach(el => el.src = `${base}SideLight.png`);
-            container.querySelector('.card-top-right-backer').src = `${base}TopRightBacker.png`;
-            container.querySelector('.card-frame-top').src        = `${base}FrameTop.png`;
+            const layout = TIER_LAYOUT[tier];
+            if (!layout) return;
+            container.dataset.tier = tier;
+            const pct = (w) => `${(w / layout.bgW * 100).toFixed(2)}%`;
+            container.querySelector('.card-bg').src = layout.bg;
+            const ft = container.querySelector('.card-frame-top');
+            ft.src = layout.frameTop.src;
+            ft.style.width = pct(layout.frameTop.w);
+            const lt = container.querySelector('.card-lower-tab');
+            lt.src = layout.lowerTab.src;
+            lt.style.width = pct(layout.lowerTab.w);
+            const tr = container.querySelector('.card-top-right-backer');
+            tr.src = layout.topRightBacker.src;
+            tr.style.width = pct(layout.topRightBacker.w);
+            container.querySelectorAll('.card-side-light').forEach(el => {
+                el.src = layout.sideLight.src;
+                el.style.width = pct(layout.sideLight.w);
+            });
         }
 
         // Clips the icon wrapper so it never overlaps the text block.
