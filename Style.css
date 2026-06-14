@@ -178,6 +178,51 @@ input[type="file"] {
     display: none;
 }
 
+input[type="color"] {
+    width: 100%;
+    height: 36px;
+    padding: 2px 4px;
+    border: 1px solid #2a2a46;
+    border-radius: 3px;
+    background: #13132a;
+    cursor: pointer;
+    transition: border-color 0.15s;
+}
+
+input[type="color"]:hover {
+    border-color: #c8aa6e;
+}
+
+.color-picker-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.color-picker-row input[type="color"] {
+    flex: 1;
+    width: auto;
+}
+
+.color-reset-btn {
+    flex-shrink: 0;
+    width: 32px;
+    height: 36px;
+    background: transparent;
+    border: 1px solid #2a2a46;
+    border-radius: 3px;
+    color: #7a7a9a;
+    font-size: 13px;
+    font-family: 'Roboto', sans-serif;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+}
+
+.color-reset-btn:hover {
+    border-color: #c8aa6e;
+    color: #c8aa6e;
+}
+
 .file-label {
     display: block;
     background: #13132a;
@@ -1037,7 +1082,7 @@ body.theme-arcane .preview-label {
 
 .archon-image-section {
     width: 100%;
-    background: #080204;
+    background: #000000;
     line-height: 0;
 }
 
@@ -1095,6 +1140,7 @@ body.theme-archon h1 {
 
 body.theme-archon input[type="text"],
 body.theme-archon input[type="number"],
+body.theme-archon input[type="color"],
 body.theme-archon select,
 body.theme-archon textarea {
     background: #120406;
@@ -1137,12 +1183,14 @@ body.theme-archon .download-btn:hover {
     background: #dbbe82;
 }
 
-body.theme-archon .reset-btn {
+body.theme-archon .reset-btn,
+body.theme-archon .color-reset-btn {
     border-color: #2e0810;
     color: #8a6040;
 }
 
-body.theme-archon .reset-btn:hover {
+body.theme-archon .reset-btn:hover,
+body.theme-archon .color-reset-btn:hover {
     border-color: #c8aa6e;
     color: #c8aa6e;
 }

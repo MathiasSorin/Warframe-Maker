@@ -257,6 +257,22 @@
             </div>
 
             <div class="form-group">
+                <label for="archon-tint">Shard color overlay</label>
+                <div class="color-picker-row">
+                    <input type="color" id="archon-tint" value="#ffffff" oninput="updateArchonTint()">
+                    <button class="color-reset-btn" onclick="resetArchonTint()" title="Remove color overlay">✕</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="archon-bg">Preview background</label>
+                <div class="color-picker-row">
+                    <input type="color" id="archon-bg" value="#000000" oninput="updateArchonBg()">
+                    <button class="color-reset-btn" onclick="resetArchonBg()" title="Reset background">✕</button>
+                </div>
+            </div>
+
+            <div class="form-group">
                 <label for="archon-effect-1">Effect 1</label>
                 <textarea id="archon-effect-1" rows="2" oninput="updateArchonEffects()"></textarea>
             </div>
@@ -938,6 +954,7 @@
 
         // ── Archon Shard card ────────────────────────────────────────────────
         const archonCard = document.getElementById('archon-card');
+        let _archonBaseSrc = '';
 
         const ARCHON_IMAGES = [
             { file: 'ArchonShard.png',                       label: 'Archon Shard',           group: 'Standard'  },
@@ -951,7 +968,7 @@
             { file: 'QuartzArchonShard.png',                 label: 'Quartz',                 group: 'Standard'  },
             { file: 'ObsidianArchonShard.png',               label: 'Obsidian',               group: 'Standard'  },
             { file: 'PoopArchonShart.png',                   label: 'Poop',                   group: 'Standard'  },
-            { file: 'PrismaticArchonShard.webp',             label: 'Prismatic',              group: 'Standard'  },
+            { file: 'PrismaticArchonShard.png',              label: 'Prismatic',              group: 'Standard'  },
             { file: 'TauforgedCrimsonArchonShard.png',       label: 'Crimson (Tauforged)',    group: 'Tauforged' },
             { file: 'TauforgedAmberArchonShard.png',         label: 'Amber (Tauforged)',      group: 'Tauforged' },
             { file: 'TauforgedAzureArchonShard.png',         label: 'Azure (Tauforged)',      group: 'Tauforged' },
@@ -1022,7 +1039,59 @@
         }
 
         function updateArchonArt() {
-            archonCard.querySelector('.archon-art').src = document.getElementById('archon-art').value;
+            _archonBaseSrc = document.getElementById('archon-art').value;
+            applyShardTint();
+        }
+
+        function updateArchonTint() {
+            applyShardTint();
+        }
+
+        function resetArchonTint() {
+            document.getElementById('archon-tint').value = '#ffffff';
+            applyShardTint();
+        }
+
+        function updateArchonBg() {
+            archonCard.querySelector('.archon-image-section').style.background =
+                document.getElementById('archon-bg').value;
+        }
+
+        function resetArchonBg() {
+            document.getElementById('archon-bg').value = '#000000';
+            updateArchonBg();
+        }
+
+        function applyShardTint() {
+            if (!_archonBaseSrc) return;
+            const color = document.getElementById('archon-tint').value;
+            if (color === '#ffffff') {
+                archonCard.querySelector('.archon-art').src = _archonBaseSrc;
+                return;
+            }
+            const cr = parseInt(color.slice(1, 3), 16) / 255;
+            const cg = parseInt(color.slice(3, 5), 16) / 255;
+            const cb = parseInt(color.slice(5, 7), 16) / 255;
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 256;
+                canvas.height = 256;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, 256, 256);
+                const imageData = ctx.getImageData(0, 0, 256, 256);
+                const data = imageData.data;
+                for (let i = 0; i < data.length; i += 4) {
+                    const lum = (data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114) / 255;
+                    const hi  = lum * lum * lum;
+                    data[i]     = Math.round((cr * lum + (1 - cr * lum) * hi) * 255);
+                    data[i + 1] = Math.round((cg * lum + (1 - cg * lum) * hi) * 255);
+                    data[i + 2] = Math.round((cb * lum + (1 - cb * lum) * hi) * 255);
+                }
+                ctx.putImageData(imageData, 0, 0);
+                archonCard.querySelector('.archon-art').src = canvas.toDataURL('image/png');
+            };
+            img.src = _archonBaseSrc;
         }
 
         function resetArchonCard() {
@@ -1031,10 +1100,14 @@
                 document.getElementById(`archon-effect-${i}`).value = '';
             }
             document.getElementById('archon-art-search').value = '';
+            document.getElementById('archon-tint').value = '#ffffff';
+            document.getElementById('archon-bg').value = '#000000';
             buildArchonSelect();
             document.getElementById('archon-art').selectedIndex = 0;
+            _archonBaseSrc = '';
             updateArchonName();
             updateArchonArt();
+            updateArchonBg();
             updateArchonEffects();
         }
 
