@@ -25,6 +25,7 @@
     <div class="tabs">
         <button class="tab-btn active" onclick="switchTab(event, 'mod')">Mod Card</button>
         <button class="tab-btn" onclick="switchTab(event, 'arcane')">Arcane</button>
+        <button class="tab-btn" onclick="switchTab(event, 'archon')">Archon Shard</button>
     </div>
 
     <!-- ── MOD TAB ── -->
@@ -239,6 +240,70 @@
 
     </div>
 
+    <!-- ── ARCHON SHARD TAB ── -->
+    <div class="layout" id="tab-archon" style="display: none">
+
+        <div class="form-panel">
+
+            <div class="form-group">
+                <label for="archon-name">Shard Name</label>
+                <input type="text" id="archon-name" oninput="updateArchonName()">
+            </div>
+
+            <div class="form-group">
+                <label for="archon-art-search">Archon Shard Art</label>
+                <input type="text" id="archon-art-search" placeholder="Search shards…" oninput="filterArchonArt()">
+                <select id="archon-art" onchange="updateArchonArt()"></select>
+            </div>
+
+            <div class="form-group">
+                <label for="archon-effect-1">Effect 1</label>
+                <textarea id="archon-effect-1" rows="2" oninput="updateArchonEffects()"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="archon-effect-2">Effect 2</label>
+                <textarea id="archon-effect-2" rows="2" oninput="updateArchonEffects()"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="archon-effect-3">Effect 3</label>
+                <textarea id="archon-effect-3" rows="2" oninput="updateArchonEffects()"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="archon-effect-4">Effect 4</label>
+                <textarea id="archon-effect-4" rows="2" oninput="updateArchonEffects()"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="archon-effect-5">Effect 5</label>
+                <textarea id="archon-effect-5" rows="2" oninput="updateArchonEffects()"></textarea>
+            </div>
+
+            <button class="download-btn" onclick="downloadCard('archon-card', 'archon-name', 'archon')">Download Card</button>
+            <button class="reset-btn" onclick="resetArchonCard()">Reset</button>
+
+        </div>
+
+        <div class="preview-panel">
+            <p class="preview-label">Preview</p>
+            <div class="archon-card" id="archon-card">
+
+                <div class="archon-image-section">
+                    <img src="images/ArchonShard/ArchonShard.png" class="archon-art" alt="">
+                </div>
+
+                <div class="archon-content">
+                    <div class="archon-card-name"></div>
+                    <div class="archon-effects-list" id="archon-effects-list"></div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
     <script src="arcane-images.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
@@ -247,11 +312,15 @@
         function switchTab(e, tab) {
             document.getElementById('tab-mod').style.display    = tab === 'mod'    ? 'flex' : 'none';
             document.getElementById('tab-arcane').style.display = tab === 'arcane' ? 'flex' : 'none';
+            document.getElementById('tab-archon').style.display = tab === 'archon' ? 'flex' : 'none';
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             e.currentTarget.classList.add('active');
             document.body.classList.toggle('theme-arcane', tab === 'arcane');
+            document.body.classList.toggle('theme-archon', tab === 'archon');
             document.getElementById('page-title').textContent =
-                tab === 'arcane' ? 'Warframe Custom Arcane Maker' : 'Warframe Custom Mod Maker';
+                tab === 'arcane' ? 'Warframe Custom Arcane Maker' :
+                tab === 'archon' ? 'Warframe Custom Archon Shard Maker' :
+                'Warframe Custom Mod Maker';
         }
 
         // ── Shared utilities ───────────────────────────────────────────────────
@@ -867,6 +936,108 @@
             arcaneCard.querySelector('.arcane-frame').src = document.getElementById('arcane-art').value;
         }
 
+        // ── Archon Shard card ────────────────────────────────────────────────
+        const archonCard = document.getElementById('archon-card');
+
+        const ARCHON_IMAGES = [
+            { file: 'ArchonShard.png',                       label: 'Archon Shard',           group: 'Standard'  },
+            { file: 'CrimsonArchonShard.png',                label: 'Crimson',                group: 'Standard'  },
+            { file: 'AmberArchonShard.png',                  label: 'Amber',                  group: 'Standard'  },
+            { file: 'AzureArchonShard.png',                  label: 'Azure',                  group: 'Standard'  },
+            { file: 'TopazArchonShard.png',                  label: 'Topaz',                  group: 'Standard'  },
+            { file: 'VioletArchonShard.png',                 label: 'Violet',                 group: 'Standard'  },
+            { file: 'EmeraldArchonShard.png',                label: 'Emerald',                group: 'Standard'  },
+            { file: 'TurquoiseArchonShard.png',              label: 'Turquoise',              group: 'Standard'  },
+            { file: 'QuartzArchonShard.png',                 label: 'Quartz',                 group: 'Standard'  },
+            { file: 'ObsidianArchonShard.png',               label: 'Obsidian',               group: 'Standard'  },
+            { file: 'PoopArchonShart.png',                   label: 'Poop',                   group: 'Standard'  },
+            { file: 'PrismaticArchonShard.webp',             label: 'Prismatic',              group: 'Standard'  },
+            { file: 'TauforgedCrimsonArchonShard.png',       label: 'Crimson (Tauforged)',    group: 'Tauforged' },
+            { file: 'TauforgedAmberArchonShard.png',         label: 'Amber (Tauforged)',      group: 'Tauforged' },
+            { file: 'TauforgedAzureArchonShard.png',         label: 'Azure (Tauforged)',      group: 'Tauforged' },
+            { file: 'TauforgedTopazArchonShard.png',         label: 'Topaz (Tauforged)',      group: 'Tauforged' },
+            { file: 'TauforgedVioletArchonShard.png',        label: 'Violet (Tauforged)',     group: 'Tauforged' },
+            { file: 'TauforgedEmeraldArchonShard.png',       label: 'Emerald (Tauforged)',    group: 'Tauforged' },
+            { file: 'TauforgedTurquoiseArchonShard.png',     label: 'Turquoise (Tauforged)',  group: 'Tauforged' },
+            { file: 'TauforgedQuartzArchonShard.png',        label: 'Quartz (Tauforged)',     group: 'Tauforged' },
+            { file: 'TauforgedObsidianArchonShard.png',      label: 'Obsidian (Tauforged)',   group: 'Tauforged' },
+            { file: 'TauforgedPoopArchonShart.png',          label: 'Poop (Tauforged)',       group: 'Tauforged' },
+        ];
+
+        function updateArchonName() {
+            archonCard.querySelector('.archon-card-name').textContent = document.getElementById('archon-name').value;
+        }
+
+        function updateArchonEffects() {
+            const vals = [];
+            for (let i = 1; i <= 5; i++) {
+                vals.push((document.getElementById(`archon-effect-${i}`).value || '').trim());
+            }
+            const list = document.getElementById('archon-effects-list');
+            list.innerHTML = '';
+            let first = true;
+            vals.forEach(text => {
+                if (!text) return;
+                if (!first) {
+                    const divEl = document.createElement('div');
+                    divEl.className = 'archon-eff-divider';
+                    list.appendChild(divEl);
+                }
+                const el = document.createElement('div');
+                el.className = 'archon-eff-text';
+                el.innerHTML = parseEffectText(text);
+                list.appendChild(el);
+                first = false;
+            });
+        }
+
+        function buildArchonSelect(filter = '') {
+            const select = document.getElementById('archon-art');
+            const prev   = select.value;
+            select.innerHTML = '';
+            const q = filter.toLowerCase();
+            const grouped = { Standard: [], Tauforged: [] };
+            ARCHON_IMAGES.forEach(({ file, label, group }) => {
+                if (q && !label.toLowerCase().includes(q)) return;
+                grouped[group].push({ file, label });
+            });
+            ['Standard', 'Tauforged'].forEach(g => {
+                if (!grouped[g].length) return;
+                const grp = document.createElement('optgroup');
+                grp.label = g;
+                grouped[g].forEach(({ file, label }) => {
+                    const opt = document.createElement('option');
+                    opt.value = `images/ArchonShard/${file}`;
+                    opt.textContent = label;
+                    grp.appendChild(opt);
+                });
+                select.appendChild(grp);
+            });
+            if (prev) select.value = prev;
+        }
+
+        function filterArchonArt() {
+            buildArchonSelect(document.getElementById('archon-art-search').value);
+            updateArchonArt();
+        }
+
+        function updateArchonArt() {
+            archonCard.querySelector('.archon-art').src = document.getElementById('archon-art').value;
+        }
+
+        function resetArchonCard() {
+            document.getElementById('archon-name').value = '';
+            for (let i = 1; i <= 5; i++) {
+                document.getElementById(`archon-effect-${i}`).value = '';
+            }
+            document.getElementById('archon-art-search').value = '';
+            buildArchonSelect();
+            document.getElementById('archon-art').selectedIndex = 0;
+            updateArchonName();
+            updateArchonArt();
+            updateArchonEffects();
+        }
+
         // ── Reset ─────────────────────────────────────────────────────────────
         function resetModCard() {
             document.getElementById('mod-rarity').value    = '';
@@ -932,6 +1103,18 @@
             updateArcaneRank();
             updateArcaneItemType();
             updateArcaneEffect();
+
+            buildArchonSelect();
+            document.getElementById('archon-name').value = 'Tauforged Crimson Shard';
+            document.getElementById('archon-effect-1').value = '+37.5% Melee Critical Damage';
+            document.getElementById('archon-effect-2').value = '+37.5% Primary Status Chance';
+            document.getElementById('archon-effect-3').value = '+37.5% Secondary Critical Chance';
+            document.getElementById('archon-effect-4').value = '+15% Ability Strength';
+            document.getElementById('archon-effect-5').value = '+15% Ability Duration';
+            document.getElementById('archon-art').value = 'images/ArchonShard/TauforgedCrimsonArchonShard.png';
+            updateArchonName();
+            updateArchonArt();
+            updateArchonEffects();
         });
 
     </script>

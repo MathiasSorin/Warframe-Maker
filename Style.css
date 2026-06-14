@@ -977,6 +977,16 @@ footer {
         max-width: 100%;
         width: 100%;
     }
+
+    .archon-card {
+        width: min(256px, 90vw);
+    }
+
+    .archon-art {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 1 / 1;
+    }
 }
 
 body.theme-arcane .reset-btn {
@@ -1011,4 +1021,132 @@ body.theme-arcane .pp-option:hover {
 
 body.theme-arcane .preview-label {
     color: #8a7040;
+}
+
+/* ── Archon Shard card ── */
+.archon-card {
+    width: 256px;
+    background: #100308;
+    border: 1px solid #3a0a14;
+    font-family: 'Roboto', sans-serif;
+    user-select: none;
+    display: block;
+    overflow: hidden;
+    text-align: left;
+}
+
+.archon-image-section {
+    width: 100%;
+    background: #080204;
+    line-height: 0;
+}
+
+.archon-art {
+    width: 256px;
+    height: 256px;
+    object-fit: contain;
+    display: block;
+    pointer-events: none;
+}
+
+.archon-content {
+    padding: 14px 12px 16px;
+}
+
+.archon-card-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #f8e8d0;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    line-height: 1.2;
+    margin-bottom: 10px;
+    word-wrap: break-word;
+}
+
+.archon-effects-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.archon-eff-text {
+    font-size: 12px;
+    color: #e8d8c0;
+    line-height: 1.4;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    padding: 6px 0;
+}
+
+.archon-eff-divider {
+    height: 1px;
+    background: #3a0a14;
+    flex-shrink: 0;
+}
+
+/* ── Archon Shard (Helminth) theme ── */
+body.theme-archon {
+    background: #0d0208;
+}
+
+body.theme-archon h1 {
+    color: #c8aa6e;
+}
+
+body.theme-archon input[type="text"],
+body.theme-archon input[type="number"],
+body.theme-archon select,
+body.theme-archon textarea {
+    background: #120406;
+    border-color: #2e0810;
+    color: #f0e0d0;
+}
+
+body.theme-archon input[type="text"]:focus,
+body.theme-archon input[type="number"]:focus,
+body.theme-archon select:focus,
+body.theme-archon textarea:focus {
+    border-color: #c8aa6e;
+}
+
+body.theme-archon select option {
+    background: #120406;
+}
+
+body.theme-archon label {
+    color: #8a6040;
+}
+
+body.theme-archon .tab-btn {
+    border-color: #2e0810;
+    color: #8a6040;
+}
+
+body.theme-archon .tab-btn:hover,
+body.theme-archon .tab-btn.active {
+    border-color: #c8aa6e;
+    color: #c8aa6e;
+}
+
+body.theme-archon .download-btn {
+    background: #c8aa6e;
+    color: #0a0505;
+}
+
+body.theme-archon .download-btn:hover {
+    background: #dbbe82;
+}
+
+body.theme-archon .reset-btn {
+    border-color: #2e0810;
+    color: #8a6040;
+}
+
+body.theme-archon .reset-btn:hover {
+    border-color: #c8aa6e;
+    color: #c8aa6e;
+}
+
+body.theme-archon .preview-label {
+    color: #8a6040;
 }
