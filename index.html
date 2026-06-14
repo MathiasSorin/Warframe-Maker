@@ -40,6 +40,8 @@
                     <option value="Uncommon">Uncommon</option>
                     <option value="Rare" selected>Rare</option>
                     <option value="Legendary">Legendary</option>
+                    <!-- <option value="Galvanized">Galvanized</option> -->
+                    <option value="Amalgam">Amalgam</option>
                 </select>
             </div>
 
@@ -298,18 +300,83 @@
             Riven:      'Gold',
             Archon:     'Gold',
             Umbra:      'Gold',
-            Amalgam:    'Gold',
-            Galvanized: 'Gold',
+            Amalgam:    'Amalgam',
+            Galvanized: 'Galvanized',
             Peculiar:   'Bronze',
         };
 
+        // Pixel dimensions per tier. bgW = intrinsic background width.
+        // setCardParts computes % widths from these — no CSS overrides needed per tier.
+        const TIER_LAYOUT = {
+            Bronze: {
+                bgW: 252,
+                bg:             'images/CardParts/Bronze/BronzeBackground.png',
+                frameTop:       { src: 'images/CardParts/Bronze/BronzeFrameTop.png',       w: 281 },
+                lowerTab:       { src: 'images/CardParts/Bronze/BronzeLowerTab.png',        w: 210 },
+                sideLight:      { src: 'images/CardParts/Bronze/BronzeSideLight.png',       w: 16  },
+                topRightBacker: { src: 'images/CardParts/Bronze/BronzeTopRightBacker.png',  w: 45  },
+            },
+            Silver: {
+                bgW: 252,
+                bg:             'images/CardParts/Silver/SilverBackground.png',
+                frameTop:       { src: 'images/CardParts/Silver/SilverFrameTop.png',       w: 281 },
+                lowerTab:       { src: 'images/CardParts/Silver/SilverLowerTab.png',        w: 210 },
+                sideLight:      { src: 'images/CardParts/Silver/SilverSideLight.png',       w: 16  },
+                topRightBacker: { src: 'images/CardParts/Silver/SilverTopRightBacker.png',  w: 45  },
+            },
+            Gold: {
+                bgW: 252,
+                bg:             'images/CardParts/Gold/GoldBackground.png',
+                frameTop:       { src: 'images/CardParts/Gold/GoldFrameTop.png',       w: 281 },
+                lowerTab:       { src: 'images/CardParts/Gold/GoldLowerTab.png',        w: 210 },
+                sideLight:      { src: 'images/CardParts/Gold/GoldSideLight.png',       w: 16  },
+                topRightBacker: { src: 'images/CardParts/Gold/GoldTopRightBacker.png',  w: 45  },
+            },
+            Legendary: {
+                bgW: 252,
+                bg:             'images/CardParts/Legendary/LegendaryBackground.png',
+                frameTop:       { src: 'images/CardParts/Legendary/LegendaryFrameTop.png',       w: 281 },
+                lowerTab:       { src: 'images/CardParts/Legendary/LegendaryLowerTab.png',        w: 210 },
+                sideLight:      { src: 'images/CardParts/Legendary/LegendarySideLight.png',       w: 16  },
+                topRightBacker: { src: 'images/CardParts/Legendary/LegendaryTopRightBacker.png',  w: 45  },
+            },
+            Amalgam: {
+                bgW: 252,
+                bg:             'images/CardParts/Amalgam/AmalgamBackground.png',
+                frameTop:       { src: 'images/CardParts/Amalgam/AmalgamFrameTop.png',         w: 281 },
+                lowerTab:       { src: 'images/CardParts/Amalgam/SilverLowerTab.png',           w: 210 },
+                sideLight:      { src: 'images/CardParts/Amalgam/LegendarySideLight.png',       w: 16  },
+                topRightBacker: { src: 'images/CardParts/Amalgam/SilverTopRightBacker.png',     w: 45  },
+            },
+            Galvanized: {
+                bgW: 252,
+                bg:             'images/CardParts/Galvanized/GalvanizedModCard.png',
+                frameTop:       { src: 'images/CardParts/Galvanized/GalvanizedFrameTop.png',      w: 257 },
+                lowerTab:       { src: 'images/CardParts/Galvanized/SilverLowerTab.png',           w: 210 },
+                sideLight:      { src: 'images/CardParts/Galvanized/GalvanizedSideLight.png',      w: 32  },
+                topRightBacker: { src: 'images/CardParts/Galvanized/SilverTopRightBacker.png',     w: 45  },
+            },
+        };
+
         function setCardParts(container, tier) {
-            const base = `images/CardParts/${tier}/${tier}`;
-            container.querySelector('.card-bg').src               = `${base}Background.png`;
-            container.querySelector('.card-lower-tab').src        = `${base}LowerTab.png`;
-            container.querySelectorAll('.card-side-light').forEach(el => el.src = `${base}SideLight.png`);
-            container.querySelector('.card-top-right-backer').src = `${base}TopRightBacker.png`;
-            container.querySelector('.card-frame-top').src        = `${base}FrameTop.png`;
+            const layout = TIER_LAYOUT[tier];
+            if (!layout) return;
+            container.dataset.tier = tier;
+            const pct = (w) => `${(w / layout.bgW * 100).toFixed(2)}%`;
+            container.querySelector('.card-bg').src = layout.bg;
+            const ft = container.querySelector('.card-frame-top');
+            ft.src = layout.frameTop.src;
+            ft.style.width = pct(layout.frameTop.w);
+            const lt = container.querySelector('.card-lower-tab');
+            lt.src = layout.lowerTab.src;
+            lt.style.width = pct(layout.lowerTab.w);
+            const tr = container.querySelector('.card-top-right-backer');
+            tr.src = layout.topRightBacker.src;
+            tr.style.width = pct(layout.topRightBacker.w);
+            container.querySelectorAll('.card-side-light').forEach(el => {
+                el.src = layout.sideLight.src;
+                el.style.width = pct(layout.sideLight.w);
+            });
         }
 
         // Clips the icon wrapper so it never overlaps the text block.
@@ -420,10 +487,42 @@
         async function downloadCard(containerId, nameFieldId, defaultName) {
             const container = document.getElementById(containerId);
             const name      = document.getElementById(nameFieldId).value || defaultName;
-            const canvas    = await html2canvas(container, { backgroundColor: null, scale: 4, useCORS: true, allowTaint: true });
-            const link      = document.createElement('a');
-            link.download   = `${name}.png`;
-            link.href       = canvas.toDataURL('image/png');
+
+            // Some frame-top images overflow the card container and get clipped by html2canvas.
+            // Clone the card into a padded off-screen ghost so the original is never touched.
+            const TIER_PAD = { Amalgam: 30, Galvanized: 30 };
+            const PAD      = TIER_PAD[container.dataset.tier] || 0;
+
+            let canvas;
+            if (PAD > 0) {
+                const clone = container.cloneNode(true);
+
+                // cloneNode doesn't copy canvas pixel data — copy it manually.
+                const srcCanvases = container.querySelectorAll('canvas');
+                const dstCanvases = clone.querySelectorAll('canvas');
+                srcCanvases.forEach((src, i) => {
+                    const dst = dstCanvases[i];
+                    dst.width  = src.width;
+                    dst.height = src.height;
+                    if (src.width && src.height) dst.getContext('2d').drawImage(src, 0, 0);
+                });
+
+                const ghost = document.createElement('div');
+                ghost.style.cssText = `display:inline-block;padding:0 ${PAD}px;position:fixed;top:-10000px;left:0;`;
+                ghost.appendChild(clone);
+                document.body.appendChild(ghost);
+                try {
+                    canvas = await html2canvas(ghost, { backgroundColor: null, scale: 4, useCORS: true, allowTaint: true });
+                } finally {
+                    document.body.removeChild(ghost);
+                }
+            } else {
+                canvas = await html2canvas(container, { backgroundColor: null, scale: 4, useCORS: true, allowTaint: true });
+            }
+
+            const link    = document.createElement('a');
+            link.download = `${name}.png`;
+            link.href     = canvas.toDataURL('image/png');
             link.click();
         }
 
@@ -431,17 +530,21 @@
         const modCard = document.getElementById('mod-card');
 
         const RARITY_FADE = {
-            Common:    '#a8824a',
-            Uncommon:  '#4477cc',
-            Rare:      '#f0c848',
-            Legendary: '#55ccee',
+            Common:     '#a8824a',
+            Uncommon:   '#4477cc',
+            Rare:       '#f0c848',
+            Legendary:  '#55ccee',
+            Galvanized: '#55ddaa',
+            Amalgam:    '#ff8888',
         };
 
         const RARITY_TEXT_COLOR = {
-            Common:    '#d4907a',
-            Uncommon:  '#ffffff',
-            Rare:      '#f8edc8',
-            Legendary: '#ffffff',
+            Common:     '#d4907a',
+            Uncommon:   '#ffffff',
+            Rare:       '#f8edc8',
+            Legendary:  '#ffffff',
+            Galvanized: '#ffffff',
+            Amalgam:    '#ffffff',
         };
 
 
