@@ -606,14 +606,14 @@ input[type="color"]:hover {
 [data-tier="Amalgam"] .card-bg               { width: 100%; transform: translateX(0%) scaleX(1.08) scaleY(1); }
 [data-tier="Amalgam"] .card-frame-top        { top: -1%; }
 [data-tier="Amalgam"] .card-top-right-backer { top: 6.5%; }
-[data-tier="Amalgam"] .card-cost             { top: 10.2%; }
+[data-tier="Amalgam"] .card-cost             { top: 10.1%; }
 [data-tier="Amalgam"] .polarity              { top: 10.1%; }
 
 /* ── Galvanized tier overrides ── */
 [data-tier="Galvanized"] .card-bg               { width: 100%; aspect-ratio: 252 / 374; object-fit: fill; transform: translateX(0%) scaleX(1.08) scaleY(1); }
 [data-tier="Galvanized"] .card-frame-top        { top: -1%; }
 [data-tier="Galvanized"] .card-top-right-backer { top: 6.5%; }
-[data-tier="Galvanized"] .card-cost             { top: 10.2%; }
+[data-tier="Galvanized"] .card-cost             { top: 10.1%; }
 [data-tier="Galvanized"] .polarity              { top: 10.1%; }
 [data-tier="Galvanized"] .card-side-light       { top: 8.8%; }
 [data-tier="Galvanized"] .card-side-right       { top: 13.5%; right: -1.2%; transform: scaleX(-1); }
@@ -635,7 +635,7 @@ input[type="color"]:hover {
 [data-tier="Archon"] .card-side-right { top: 11.8%; right: -1.5%; transform: scaleX(-1) scaleY(1.25); }
 [data-tier="Archon"] .card-side-left  { top: 11.8%; left: -1.5%; transform: scaleX(1) scaleY(1.25); }
 [data-tier="Archon"] .card-top-right-backer { top: 6.5%; }
-[data-tier="Archon"] .card-cost             { top: 10.2%; }
+[data-tier="Archon"] .card-cost             { top: 10.1%; }
 [data-tier="Archon"] .polarity              { top: 10.1%; }
 
 /* ── Riven tier overrides ── */
