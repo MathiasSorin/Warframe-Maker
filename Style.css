@@ -619,6 +619,9 @@ input[type="color"]:hover {
 [data-tier="Galvanized"] .card-side-right       { top: 13.5%; right: -1.2%; transform: scaleX(-1); }
 [data-tier="Galvanized"] .card-side-left        { top: 13.5%; left: -1.2%; transform: scaleX(1); }
 
+/* ── Riven tier overrides ── */
+[data-tier="Riven"] .card-bg { width: 100%; aspect-ratio: 252 / 374; object-fit: fill; transform: translateX(0%) scaleX(1.19) scaleY(1); }
+
 /* ── Rank ── */
 .card-rank {
     position: absolute;

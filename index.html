@@ -45,6 +45,7 @@
                     <option value="Legendary">Legendary</option>
                     <option value="Galvanized">Galvanized</option>
                     <option value="Amalgam">Amalgam</option>
+                    <option value="Riven">Riven</option>
                 </select>
             </div>
 
@@ -384,7 +385,7 @@
             Uncommon:   'Silver',
             Rare:       'Gold',
             Legendary:  'Legendary',
-            Riven:      'Gold',
+            Riven:      'Riven',
             Archon:     'Gold',
             Umbra:      'Gold',
             Amalgam:    'Amalgam',
@@ -442,6 +443,14 @@
                 lowerTab:       { src: 'images/CardParts/Galvanized/SilverLowerTab.png',           w: 210 },
                 sideLight:      { src: 'images/CardParts/Galvanized/GalvanizedSideLight.png',      w: 32  },
                 topRightBacker: { src: 'images/CardParts/Galvanized/SilverTopRightBacker.png',     w: 45  },
+            },
+            Riven: {
+                bgW: 252,
+                bg:             'images/CardParts/Riven/RivenBackground.png',
+                frameTop:       { src: 'images/CardParts/Riven/RivenFrameTop.png',       w: 281 },
+                lowerTab:       { src: 'images/CardParts/Riven/RivenLowerTab.png',        w: 210 },
+                sideLight:      { src: 'images/CardParts/Riven/RivenSideLight.png',       w: 16  },
+                topRightBacker: { src: 'images/CardParts/Riven/RivenTopRightBacker.png',  w: 45  },
             },
         };
 
@@ -577,7 +586,7 @@
 
             // Some frame-top images overflow the card container and get clipped by html2canvas.
             // Clone the card into a padded off-screen ghost so the original is never touched.
-            const TIER_PAD = { Amalgam: 30, Galvanized: 30 };
+            const TIER_PAD = { Amalgam: 30, Galvanized: 30, Riven: 30 };
             const PAD      = TIER_PAD[container.dataset.tier] || 0;
 
             let canvas;
@@ -623,6 +632,7 @@
             Legendary:  '#55ccee',
             Galvanized: '#ffffff',
             Amalgam:    '#ff8888',
+            Riven:      '#c090e0',
         };
 
         const RARITY_TEXT_COLOR = {
@@ -632,6 +642,7 @@
             Legendary:  '#ffffff',
             Galvanized: '#ffffff',
             Amalgam:    '#ffffff',
+            Riven:      '#bb88e8',
         };
 
 
