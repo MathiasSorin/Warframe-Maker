@@ -45,6 +45,7 @@
                     <option value="Legendary">Legendary</option>
                     <option value="Galvanized">Galvanized</option>
                     <option value="Amalgam">Amalgam</option>
+                    <option value="Archon">Archon</option>
                     <option value="Riven">Riven</option>
                 </select>
             </div>
@@ -162,6 +163,7 @@
                 <img src="images/CardParts/Bronze/BronzeTopRightBacker.png" class="card-layer card-top-right-backer" alt="">
                 <img src="images/CardParts/Bronze/BronzeFrameTop.png" class="card-layer card-frame-top" alt="">
                 <img src="images/CardParts/Exilus.png" class="card-layer card-exilus" alt="">
+                <img src="images/CardParts/Archon/ArchonTopLogo.png" class="card-layer card-archon-logo" alt="" style="display:none">
 
                 <div class="card-cost"></div>
                 <img src="" class="polarity" alt="">
@@ -386,7 +388,7 @@
             Rare:       'Gold',
             Legendary:  'Legendary',
             Riven:      'Riven',
-            Archon:     'Gold',
+            Archon:     'Archon',
             Umbra:      'Gold',
             Amalgam:    'Amalgam',
             Galvanized: 'Galvanized',
@@ -444,6 +446,14 @@
                 sideLight:      { src: 'images/CardParts/Galvanized/GalvanizedSideLight.png',      w: 32  },
                 topRightBacker: { src: 'images/CardParts/Galvanized/SilverTopRightBacker.png',     w: 45  },
             },
+            Archon: {
+                bgW: 252,
+                bg:             'images/CardParts/Archon/ArchonBackground.png',
+                frameTop:       { src: 'images/CardParts/Archon/ArchonModTopFrame.png',     w: 256 },
+                lowerTab:       { src: 'images/CardParts/Archon/GoldLowerTab.png',          w: 210 },
+                sideLight:      { src: 'images/CardParts/Archon/SideLightArchonMod.png',    w: 32  },
+                topRightBacker: { src: 'images/CardParts/Archon/GoldTopRightBacker.png',    w: 45  },
+            },
             Riven: {
                 bgW: 252,
                 bg:             'images/CardParts/Riven/RivenBackground.png',
@@ -487,19 +497,28 @@
                 _clipY   = textBlock.textContent.trim() ? Math.max(textBlock.offsetTop - 8, 0) : cardHeight;
                 _iconTop = 0.355 * cardHeight;
 
-                wrapper.style.height = `${_clipY}px`;
-                icon.style.top       = `${_iconTop}px`;
+                // For Archon the frame-top image has a transparent center, so the icon bleeds
+                // through it. clip-path would fix the preview but html2canvas ignores it.
+                // Instead, offset the wrapper's top edge — overflow:hidden is html2canvas-safe
+                // and stays constant regardless of wrapper height (no % shrinking issue).
+                const topClip = container.dataset.tier === 'Archon'
+                    ? Math.round(0.04 * cardHeight) : 0;
+
+                wrapper.style.top    = `${topClip}px`;
+                wrapper.style.height = `${Math.max(0, _clipY - topClip)}px`;
+                icon.style.top       = `${_iconTop - topClip}px`;
 
                 // Read actual rendered icon size (includes CSS width:94% + scaleY:1.05 transform).
                 const cardRect = container.getBoundingClientRect();
                 const iconRect = icon.getBoundingClientRect();
                 _iconSize  = iconRect.height;
+                // _canvasTop stays card-relative so drawIconFade's math is unchanged.
                 _canvasTop = Math.max(0, iconRect.top - cardRect.top);
 
                 // Canvas always covers the full icon area — never shrinks with text.
                 // The bottom fade is drawn at _clipY inside the canvas.
                 const canvas = container.querySelector('.icon-fade');
-                canvas.style.top    = `${_canvasTop}px`;
+                canvas.style.top    = `${_canvasTop - topClip}px`; // wrapper-relative
                 canvas.style.height = `${_iconSize}px`;
 
                 rebakeIconFade();
@@ -586,11 +605,19 @@
 
             // Some frame-top images overflow the card container and get clipped by html2canvas.
             // Clone the card into a padded off-screen ghost so the original is never touched.
-            const TIER_PAD = { Amalgam: 30, Galvanized: 30, Riven: 30 };
-            const PAD      = TIER_PAD[container.dataset.tier] || 0;
+            // h = horizontal pad (px each side), t = top pad (px) for frames that extend above the card.
+            const TIER_PAD = {
+                Amalgam:    { h: 30, t: 0  },
+                Galvanized: { h: 30, t: 0  },
+                Riven:      { h: 30, t: 0  },
+                Archon:     { h: 0,  t: 10 },
+            };
+            const _pad  = TIER_PAD[container.dataset.tier] || {};
+            const PAD_H = _pad.h || 0;
+            const PAD_T = _pad.t || 0;
 
             let canvas;
-            if (PAD > 0) {
+            if (PAD_H > 0 || PAD_T > 0) {
                 const clone = container.cloneNode(true);
 
                 // cloneNode doesn't copy canvas pixel data — copy it manually.
@@ -604,7 +631,7 @@
                 });
 
                 const ghost = document.createElement('div');
-                ghost.style.cssText = `display:inline-block;padding:0 ${PAD}px;position:fixed;top:-10000px;left:0;`;
+                ghost.style.cssText = `display:inline-block;padding:${PAD_T}px ${PAD_H}px 0;position:fixed;top:-10000px;left:0;`;
                 ghost.appendChild(clone);
                 document.body.appendChild(ghost);
                 try {
@@ -625,6 +652,10 @@
         // ── Mod card ──────────────────────────────────────────────────────────
         const modCard = document.getElementById('mod-card');
 
+        const RARITY_FADE_ALPHA = {
+            Archon: 0.45,
+        };
+
         const RARITY_FADE = {
             Common:     '#a8824a',
             Uncommon:   '#4477cc',
@@ -632,6 +663,7 @@
             Legendary:  '#55ccee',
             Galvanized: '#ffffff',
             Amalgam:    '#ff8888',
+            Archon:     '#f8f6f2',
             Riven:      '#c090e0',
         };
 
@@ -642,11 +674,13 @@
             Legendary:  '#ffffff',
             Galvanized: '#ffffff',
             Amalgam:    '#ffffff',
+            Archon:     '#dcc898',
             Riven:      '#bb88e8',
         };
 
 
         let modFadeColor       = '#c49a5a';
+        let modFadeAlpha       = 1;
         let _origIconDataUrl   = null;
         let _origIconDataUrlHi = null;
         let _origIconDataUrlLo = null;
@@ -719,7 +753,7 @@
                 const r  = Math.sqrt(cx * cx + (h / 2) ** 2);
                 const grad = ctx.createRadialGradient(cx, cy, r * 0.65, cx, cy, r);
                 grad.addColorStop(0, hexToRgba(modFadeColor, 0));
-                grad.addColorStop(1, hexToRgba(modFadeColor, 1));
+                grad.addColorStop(1, hexToRgba(modFadeColor, modFadeAlpha));
                 ctx.clearRect(0, 0, w, h);
                 ctx.fillStyle = grad;
                 ctx.fillRect(0, 0, w, h);
@@ -741,8 +775,10 @@
 
         function updateModBackground() {
             const rarity    = document.getElementById('mod-rarity').value || 'Common';
-            setCardParts(modCard, RARITY_TIER[rarity] || 'Bronze');
+            const tier      = RARITY_TIER[rarity] || 'Bronze';
+            setCardParts(modCard, tier);
             modFadeColor = RARITY_FADE[rarity] || '#0d0d1a';
+            modFadeAlpha = RARITY_FADE_ALPHA[rarity] ?? 1;
             drawIconFade();
             const textColor = RARITY_TEXT_COLOR[rarity] || '#ffffff';
             modCard.querySelector('.card-name').style.color       = textColor;
@@ -751,6 +787,15 @@
             modCard.querySelector('.card-cost').style.color       = textColor;
             updateModPolarity();
             if (document.getElementById('mod-exilus').checked) colorizeExilus(textColor);
+
+            // Archon-specific overrides
+            const isArchon = tier === 'Archon';
+            modCard.querySelector('.rank-line').src = isArchon
+                ? 'images/CardParts/Archon/RankCompleteLineOrange.png'
+                : 'images/CardParts/RankAssets/RankCompleteLine.png';
+            modCard.querySelector('.card-archon-logo').style.display = isArchon ? '' : 'none';
+            updateModRank();
+            updateIconClip(modCard);
         }
 
         function updateModCost() {
@@ -861,12 +906,17 @@
         }
 
         function updateModRank() {
-            const val   = Math.min(10, Math.max(0, parseInt(document.getElementById('mod-rank').value) || 0));
-            const slots = document.getElementById('mod-rank-slots');
+            const val    = Math.min(10, Math.max(0, parseInt(document.getElementById('mod-rank').value) || 0));
+            const rarity = document.getElementById('mod-rarity').value || 'Common';
+            const tier   = RARITY_TIER[rarity] || 'Bronze';
+            const slots  = document.getElementById('mod-rank-slots');
+            const slotSrc = tier === 'Archon'
+                ? 'images/CardParts/Archon/ArchonStar.png'
+                : 'images/CardParts/RankAssets/RankSlotActive.png';
             slots.innerHTML = '';
             for (let i = 0; i < val; i++) {
                 const img     = document.createElement('img');
-                img.src       = 'images/CardParts/RankAssets/RankSlotActive.png';
+                img.src       = slotSrc;
                 img.className = 'rank-slot-icon';
                 img.alt       = '';
                 slots.appendChild(img);

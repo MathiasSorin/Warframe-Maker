@@ -619,6 +619,25 @@ input[type="color"]:hover {
 [data-tier="Galvanized"] .card-side-right       { top: 13.5%; right: -1.2%; transform: scaleX(-1); }
 [data-tier="Galvanized"] .card-side-left        { top: 13.5%; left: -1.2%; transform: scaleX(1); }
 
+/* ── Archon tier overrides ── */
+.card-archon-logo {
+    position: absolute;
+    top: 1.5%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 22%;
+    z-index: 7;
+    pointer-events: none;
+}
+
+/* ── Archon tier overrides ── */
+[data-tier="Archon"] .card-frame-top  { top: -1%; }
+[data-tier="Archon"] .card-side-right { top: 11.8%; right: -1.5%; transform: scaleX(-1) scaleY(1.25); }
+[data-tier="Archon"] .card-side-left  { top: 11.8%; left: -1.5%; transform: scaleX(1) scaleY(1.25); }
+[data-tier="Archon"] .card-top-right-backer { top: 6.5%; }
+[data-tier="Archon"] .card-cost             { top: 10.2%; }
+[data-tier="Archon"] .polarity              { top: 10.1%; }
+
 /* ── Riven tier overrides ── */
 [data-tier="Riven"] .card-bg { width: 100%; aspect-ratio: 252 / 374; object-fit: fill; transform: translateX(0%) scaleX(1.19) scaleY(1); }
 
