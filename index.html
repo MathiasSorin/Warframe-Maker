@@ -25,9 +25,10 @@
     <h1 id="page-title">Warframe Custom Mod Maker</h1>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab(event, 'mod')">Mod Card</button>
+        <button class="tab-btn active" onclick="switchTab(event, 'mod')">Mod</button>
         <button class="tab-btn" onclick="switchTab(event, 'arcane')">Arcane</button>
         <button class="tab-btn" onclick="switchTab(event, 'archon')">Archon Shard</button>
+        <button class="tab-btn" onclick="switchTab(event, 'ability')">Ability</button>
     </div>
 
     <!-- ── MOD TAB ── -->
@@ -325,22 +326,81 @@
 
     </div>
 
+    <!-- ── ABILITY TAB ── -->
+    <div class="layout" id="tab-ability" style="display: none">
+
+        <div class="form-panel">
+
+            <div class="form-group">
+                <label for="ability-name">Ability Name</label>
+                <input type="text" id="ability-name" value="" oninput="updateAbilityName()">
+            </div>
+
+            <div class="form-group">
+                <label for="ability-description">Description</label>
+                <textarea id="ability-description" rows="4" oninput="updateAbilityDescription()"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Card Art</label>
+                <label for="ability-image-upload" class="file-label" id="ability-image-label">Upload Image</label>
+                <input type="file" id="ability-image-upload" accept="image/*">
+            </div>
+
+            <div class="form-group">
+                <label>Stats <span id="ability-stat-count" class="ability-stat-count-badge">0 / 15</span></label>
+                <div id="ability-stat-fields"></div>
+                <button class="add-stat-btn" id="add-stat-btn" onclick="addAbilityStat()">+ Add Stat</button>
+            </div>
+
+            <button class="download-btn" onclick="downloadCard('ability-card', 'ability-name', 'ability')">Download Card</button>
+            <button class="reset-btn" onclick="resetAbilityCard()">Reset</button>
+
+        </div>
+
+        <div class="preview-panel">
+            <p class="preview-label">Preview</p>
+            <div class="ability-card" id="ability-card">
+
+                <div class="ability-header">
+                    <div class="ability-card-name">ABILITY NAME</div>
+                    <div class="ability-card-subtitle">MAX RANK</div>
+                </div>
+
+                <div class="ability-image-section">
+                    <img src="" class="ability-art" id="ability-art-img" alt="">
+                </div>
+
+                <div class="ability-description-text" id="ability-desc-display"></div>
+
+                <div class="ability-divider" id="ability-divider" style="display:none"></div>
+
+                <div class="ability-stats-list" id="ability-stats-display"></div>
+
+            </div>
+        </div>
+
+    </div>
+
     <script src="arcane-images.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
 
         // ── Tab switching ──────────────────────────────────────────────────────
         function switchTab(e, tab) {
-            document.getElementById('tab-mod').style.display    = tab === 'mod'    ? 'flex' : 'none';
-            document.getElementById('tab-arcane').style.display = tab === 'arcane' ? 'flex' : 'none';
-            document.getElementById('tab-archon').style.display = tab === 'archon' ? 'flex' : 'none';
+            document.getElementById('tab-mod').style.display     = tab === 'mod'     ? 'flex' : 'none';
+            document.getElementById('tab-arcane').style.display  = tab === 'arcane'  ? 'flex' : 'none';
+            document.getElementById('tab-archon').style.display  = tab === 'archon'  ? 'flex' : 'none';
+            document.getElementById('tab-ability').style.display = tab === 'ability' ? 'flex' : 'none';
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             e.currentTarget.classList.add('active');
-            document.body.classList.toggle('theme-arcane', tab === 'arcane');
-            document.body.classList.toggle('theme-archon', tab === 'archon');
+            document.body.classList.toggle('theme-arcane',  tab === 'arcane');
+            document.body.classList.toggle('theme-archon',  tab === 'archon');
+            document.body.classList.toggle('theme-ability', tab === 'ability');
             document.getElementById('page-title').textContent =
-                tab === 'arcane' ? 'Warframe Custom Arcane Maker' :
-                tab === 'archon' ? 'Warframe Custom Archon Shard Maker' :
+                tab === 'arcane'  ? 'Warframe Custom Arcane Maker' :
+                tab === 'archon'  ? 'Warframe Custom Archon Shard Maker' :
+                tab === 'ability' ? 'Warframe Custom Ability Maker' :
                 'Warframe Custom Mod Maker';
         }
 
@@ -927,6 +987,17 @@
             if (e.target.files[0]) handleModImageUpload(e.target.files[0]);
         });
 
+        document.getElementById('ability-image-upload').addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = ev => {
+                document.getElementById('ability-art-img').src = ev.target.result;
+                document.getElementById('ability-image-label').textContent = file.name;
+            };
+            reader.readAsDataURL(file);
+        });
+
         // ── Arcane card ───────────────────────────────────────────────────────
         const arcaneCard = document.getElementById('arcane-card');
 
@@ -1176,6 +1247,145 @@
             updateArchonEffects();
         }
 
+        // ── Ability card ──────────────────────────────────────────────────────
+        const ABILITY_MAX_STATS = 15;
+
+        function updateAbilityName() {
+            const val = document.getElementById('ability-name').value.trim() || 'ABILITY NAME';
+            document.querySelector('#ability-card .ability-card-name').textContent = val.toUpperCase();
+        }
+
+        function updateAbilityDescription() {
+            const val = document.getElementById('ability-description').value;
+            const el  = document.getElementById('ability-desc-display');
+            el.innerHTML     = parseAbilityIcons(val);
+            el.style.display = val.trim() ? '' : 'none';
+            _syncAbilityDivider();
+        }
+
+        function _syncAbilityDivider() {
+            const hasDesc  = document.getElementById('ability-description').value.trim().length > 0;
+            const hasStats = document.getElementById('ability-stats-display').children.length > 0;
+            document.getElementById('ability-divider').style.display = (hasDesc && hasStats) ? '' : 'none';
+        }
+
+        function _makeStatRow(name, value) {
+            const row = document.createElement('div');
+            row.className = 'ability-stat-field';
+            row.innerHTML = `
+                <span class="drag-handle" title="Drag to reorder">⠿</span>
+                <input type="text" placeholder="Stat name" value="${name || ''}" oninput="renderAbilityStats()">
+                <input type="text" placeholder="Value" value="${value || ''}" oninput="renderAbilityStats()">
+                <button class="remove-stat-btn" onclick="removeAbilityStat(this)" title="Remove">✕</button>`;
+            return row;
+        }
+
+        function addAbilityStat() {
+            const container = document.getElementById('ability-stat-fields');
+            if (container.children.length >= ABILITY_MAX_STATS) return;
+            container.appendChild(_makeStatRow('', ''));
+            renderAbilityStats();
+        }
+
+        function removeAbilityStat(btn) {
+            btn.closest('.ability-stat-field').remove();
+            renderAbilityStats();
+        }
+
+        let _dragSrc = null;
+        function _initStatDrag() {
+            const container = document.getElementById('ability-stat-fields');
+            container.addEventListener('mousedown', e => {
+                const handle = e.target.closest('.drag-handle');
+                if (!handle) return;
+                const row = handle.closest('.ability-stat-field');
+                if (row) row.draggable = true;
+            });
+            container.addEventListener('mouseup', e => {
+                if (_dragSrc) return;
+                const row = e.target.closest('.ability-stat-field');
+                if (row) row.draggable = false;
+            });
+            container.addEventListener('dragstart', e => {
+                const row = e.target.closest('.ability-stat-field');
+                if (!row || !row.draggable) { e.preventDefault(); return; }
+                _dragSrc = row;
+                row.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+            });
+            container.addEventListener('dragover', e => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                const row = e.target.closest('.ability-stat-field');
+                if (!row || row === _dragSrc) return;
+                const mid = row.getBoundingClientRect().top + row.getBoundingClientRect().height / 2;
+                container.insertBefore(_dragSrc, e.clientY < mid ? row : row.nextSibling);
+            });
+            container.addEventListener('dragend', () => {
+                if (_dragSrc) {
+                    _dragSrc.classList.remove('dragging');
+                    _dragSrc.draggable = false;
+                }
+                _dragSrc = null;
+                renderAbilityStats();
+            });
+        }
+
+        function parseAbilityIcons(raw) {
+            const escaped = raw
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/\n/g, '<br>');
+            return escaped.replace(/&lt;(\w+)&gt;/gi, (match, tag) => {
+                const lower = tag.toLowerCase();
+                if (lower === 'health') return '<img src="images/Ability/health.gif" class="ability-inline-icon" alt="health">';
+                if (lower === 'energy') return '<img src="images/Ability/energy.gif" class="ability-inline-icon" alt="energy">';
+                if (lower === 'shield') return '<img src="images/Ability/shield.png" class="ability-inline-icon" alt="shield">';
+                const file = ELEMENT_ICONS[lower];
+                return file
+                    ? `<img src="images/ElementIcon/${file}.png" class="ability-inline-icon" alt="${tag}">`
+                    : match;
+            });
+        }
+
+        function renderAbilityStats() {
+            const container = document.getElementById('ability-stat-fields');
+            const display   = document.getElementById('ability-stats-display');
+            const count     = container.children.length;
+
+            document.getElementById('ability-stat-count').textContent = `${count} / ${ABILITY_MAX_STATS}`;
+            document.getElementById('add-stat-btn').disabled = count >= ABILITY_MAX_STATS;
+
+            display.innerHTML = '';
+            Array.from(container.children).forEach(row => {
+                const inputs = row.querySelectorAll('input');
+                const name   = inputs[0].value;
+                const value  = inputs[1].value;
+                const statRow = document.createElement('div');
+                statRow.className = 'ability-stat-row';
+                statRow.innerHTML = `
+                    <span class="ability-stat-name">${parseAbilityIcons(name)}</span>
+                    <span class="ability-stat-dots"></span>
+                    <span class="ability-stat-value">${parseAbilityIcons(value)}</span>`;
+                display.appendChild(statRow);
+            });
+
+            _syncAbilityDivider();
+        }
+
+        function resetAbilityCard() {
+            document.getElementById('ability-name').value        = '';
+            document.getElementById('ability-description').value = '';
+            document.getElementById('ability-stat-fields').innerHTML = '';
+            document.getElementById('ability-art-img').src       = '';
+            document.getElementById('ability-image-label').textContent = 'Upload Image';
+            document.getElementById('ability-image-upload').value = '';
+            updateAbilityName();
+            updateAbilityDescription();
+            renderAbilityStats();
+        }
+
         // ── Reset ─────────────────────────────────────────────────────────────
         function resetModCard() {
             document.getElementById('mod-rarity').value    = '';
@@ -1241,6 +1451,19 @@
             updateArcaneRank();
             updateArcaneItemType();
             updateArcaneEffect();
+
+            // Ability card defaults
+            document.getElementById('ability-name').value        = 'Peacemaker';
+            document.getElementById('ability-description').value = 'With intense focus, Mesa draws her Regulator pistols, shooting down her foes in rapid succession.';
+            [['Drain','<energy> 25'],['Energy / Second','<energy> 15'],['Damage Multiplier','1.5x'],['Field of View','15°']].forEach(([n,v]) => {
+                document.getElementById('ability-stat-fields').appendChild(_makeStatRow(n, v));
+            });
+            updateAbilityName();
+            updateAbilityDescription();
+            renderAbilityStats();
+            _initStatDrag();
+            document.getElementById('ability-art-img').src = 'images/Ability/Peacemaker.png';
+            document.getElementById('ability-image-label').textContent = 'Peacemaker.png';
 
             buildArchonSelect();
             document.getElementById('archon-name').value = 'Tauforged Crimson Shard';
